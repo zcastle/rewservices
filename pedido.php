@@ -127,6 +127,40 @@ $app->group('/pedido', function () use ($app, $db, $result) {
         $app->response()->write(json_encode($result));
     });
 
+    $app->post('/liberar', function() use($app, $db, $result) {
+        $nroatencion = $app->request->post('nroatencion');
+        $rowsAtencion = $db->atenciones->where('nroatencion', $nroatencion);
+        if($rowsAtencion->fetch()){
+            $rowsAtencion->delete();
+        }
+        $app->response()->write(json_encode($result));
+    });
+    $app->post('/actualizar', function() use($app, $db, $result) {
+        $nroatencion = $app->request->post('nroatencion');
+        $mozoId = $app->request->post('mozo_id');
+        $pax = $app->request->post('pax');
+
+        $rowsAtencion = $db->atenciones->where('nroatencion', $nroatencion);
+        if($rowsAtencion->fetch()){
+            $rowsAtencion->update(array(
+                'mozo_id' => $mozoId,
+                'pax' => $pax
+            ));
+        }
+        $app->response()->write(json_encode($result));
+    });
+
+    $app->post('/print/precuenta', function() use($app, $db, $result) {
+        $nroatencion = $app->request->post('nroatencion');
+        $rowsAtencion = $db->atenciones->where('nroatencion', $nroatencion);
+        if($rowsAtencion->fetch()){
+            $rowsAtencion->update(array(
+                'print' => 'S'
+            ));
+        }
+        $app->response()->write(json_encode($result));
+    });
+
     $app->get('/tablet/', function() use ($app, $db, $result) {
         $mesa = $app->request->get('mesa');
         $rows = $db->atenciones->where('nroatencion', $mesa);
@@ -175,6 +209,11 @@ $app->group('/pedido', function () use ($app, $db, $result) {
         } else {
             $result['success'] = false;
         }
+        /*$atenciones = $db->atenciones->where('nroatencion', $values->nroatencion);
+        $atenciones->update(array(
+            'mozo_id' => $values->mozo_id,
+            'pax' => $values->pax
+        ));*/
         $app->response()->write(json_encode($result));
     });
 
@@ -186,6 +225,13 @@ $app->group('/pedido', function () use ($app, $db, $result) {
         array_push($result['data'], array(
             'id' => $create['id']
         ));
+        //
+        /*$atenciones = $db->atenciones->where('nroatencion', $values->nroatencion);
+        $atenciones->update(array(
+            'mozo_id' => $values->mozo_id,
+            'pax' => $values->pax
+        ));*/
+        //
         $app->response()->write(json_encode($result));
     });
 

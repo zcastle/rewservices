@@ -18,14 +18,17 @@ $app->group('/producto', function () use ($app, $db, $result) {
         $app->response()->write(json_encode($result));
     });
 
-    $app->get('/pos/', function() use ($app, $db, $result) {
+    $app->get('/pos', function() use ($app, $db, $result) {
         $tb = $db->producto()->order("nombre");
         foreach ($tb as $row) {
             array_push($result['data'], array(
                 'id' => $row['id'],
                 'nombre' => $row['nombre'],
                 'precio' => $row['precio'],
-                'orden' => $row['orden']
+                'orden' => $row['orden'],
+                'categoria_id' => $row['categoria_id'],
+                'categoria_name' => $row->categoria['nombre'],
+                'codigo' => $row['codigo'],
             ));
         }
         $app->response()->write(json_encode($result));
