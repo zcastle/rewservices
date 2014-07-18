@@ -47,6 +47,20 @@ $app->group('/producto', function () use ($app, $db, $result) {
         $app->response()->write(json_encode($result));
     });
 
+    $app->get('/pos/buscar/:nombre', function($nombre) use ($app, $db, $result) {
+        $tb = $db->producto->where('(nombre LIKE ? OR codigo = ?) AND eliminado=?', '%'.$nombre.'%', $nombre, 'N')->order("nombre");
+        foreach ($tb as $row) {
+            array_push($result['data'], array(
+                'id' => $row['id'],
+                'nombre' => $row['nombre'],
+                'categoria_name' => $row->categoria['nombre'],
+                'precio' => $row['precio'],
+                'orden' => $row['orden']
+            ));
+        }
+        $app->response()->write(json_encode($result));
+    });
+
     $app->get('/codigo/:codigo', function($codigo) use ($app, $db, $result) {
         $tb = $db->producto->where('codigo', $codigo);
         if ($row = $tb->fetch()) {

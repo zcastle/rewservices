@@ -1,6 +1,6 @@
 <?php
 date_default_timezone_set('America/Lima');
-$DEBUG = true;
+$DEBUG = false;
 
 require 'vendor/autoload.php';
 
@@ -25,8 +25,9 @@ $app->options('/categoria', function(){});
 $app->options('/categoria/:id', function(){});
 $app->options('/categoria/tablet', function(){});
 $app->options('/cliente', function(){});
+$app->options('/cliente/:id', function(){});
 $app->options('/cliente/ruc/:ruc', function(){});
-$app->options('/corporacion', function(){});
+$app->options('/corporacion/:id', function(){});
 $app->options('/destino', function(){});
 $app->options('/grupo', function(){});
 $app->options('/guia/cabecera', function(){});
@@ -44,21 +45,26 @@ $app->options('/pedido/tablet', function(){});
 $app->options('/pedido/mesa/:mesa', function(){});
 $app->options('/pedido/pago/:nroatencion', function(){});
 $app->options('/pedido/pagar', function(){});
-$app->options('/pedido/liberar', function(){});
+$app->options('/pedido/liberar/:adminId', function(){});
 $app->options('/pedido/actualizar', function(){});
+$app->options('/pedido/actualizar/debug', function(){});
+$app->options('/pedido/actualizar/cliente', function(){});
 $app->options('/pedido/print/precuenta', function(){});
+$app->options('/pedido/resumen/:cajaId', function(){});
 $app->options('/producto', function(){});
 $app->options('/producto/:id', function(){});
 $app->options('/producto/codigo/:codigo', function(){});
 $app->options('/producto/buscar/:nombre', function(){});
 $app->options('/producto/pos', function(){});
 $app->options('/producto/pos/categoria/:id', function(){});
+$app->options('/producto/pos/buscar/:nombre', function(){});
 $app->options('/producto/tablet/', function() {});
 $app->options('/producto/tienda/', function() {});
 $app->options('/producto/receta/:id', function() {});
 $app->options('/tipo_documento', function(){});
 $app->options('/tipo_operacion', function(){});
 $app->options('/ubigeo', function(){});
+$app->options('/ubigeo/lima', function(){});
 $app->options('/unidad', function(){});
 $app->options('/unidad/producto/:id', function(){});
 $app->options('/util/ruc/:ruc', function(){});
