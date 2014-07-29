@@ -19,6 +19,7 @@ $app->options('/almacen', function(){});
 $app->options('/atenciones/:mesa', function() {});
 $app->options('/launcher/:id', function() {});
 $app->options('/caja', function(){});
+$app->options('/caja/cierre/:caja_id', function(){});
 $app->options('/caja/:cc_id', function(){});
 $app->options('/caja/tablet/:nombre', function(){});
 $app->options('/categoria', function(){});
@@ -71,6 +72,8 @@ $app->options('/util/ruc/:ruc', function(){});
 $app->options('/usuario', function(){});
 $app->options('/usuario/:id', function(){});
 $app->options('/usuario/tablet', function(){});
+$app->options('/venta/anular/:caja_id', function(){});
+$app->options('/venta/anular/:caja_id/:cajero_id', function(){});
 
 
 $dsn = 'mysql:host=localhost;dbname=dbrewsoft2014;';

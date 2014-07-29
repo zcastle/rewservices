@@ -21,6 +21,15 @@ $app->group('/caja', function () use ($app, $db, $result) {
 	    $app->response()->write(json_encode($result));
 	});
 
+	$app->get('/cierre/:caja_id', function($caja_id) use ($app, $db, $result) {
+		$rows = $db->caja('id', $caja_id)->fetch();
+		$rows->update(array(
+			'dia' => $rows['dia']+1
+		));
+
+	    $app->response()->write(json_encode($result));
+	});
+
 	$app->get('/tablet/:nombre', function($nombre) use ($app, $db, $result) {
 		$rows = $db->caja->where('nombre', $nombre);
 		if ($row=$rows->fetch()) {

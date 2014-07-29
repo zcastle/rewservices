@@ -35,28 +35,29 @@ $app->group('/producto', function () use ($app, $db, $result) {
     });
 
     $app->get('/pos/categoria/:id', function($id) use ($app, $db, $result) {
-        $tb = $db->producto->where('categoria_id=? AND eliminado=?', $id, 'N')->order("nombre");
+        $tb = $db->producto->where('categoria_id=? AND eliminado=?', $id, 'N')->order("orden");
+        //->limit(10, 0)
         foreach ($tb as $row) {
             array_push($result['data'], array(
                 'id' => $row['id'],
                 'nombre' => $row['nombre'],
-                'precio' => $row['precio'],
-                'orden' => $row['orden']
+                'precio' => $row['precio']
             ));
+            //,'orden' => $row['orden']
         }
         $app->response()->write(json_encode($result));
     });
 
     $app->get('/pos/buscar/:nombre', function($nombre) use ($app, $db, $result) {
-        $tb = $db->producto->where('(nombre LIKE ? OR codigo = ?) AND eliminado=?', '%'.$nombre.'%', $nombre, 'N')->order("nombre");
+        $tb = $db->producto->where('(nombre LIKE ? OR codigo = ?) AND eliminado=?', '%'.$nombre.'%', $nombre, 'N')->order("orden");
         foreach ($tb as $row) {
             array_push($result['data'], array(
                 'id' => $row['id'],
                 'nombre' => $row['nombre'],
-                'categoria_name' => $row->categoria['nombre'],
-                'precio' => $row['precio'],
-                'orden' => $row['orden']
+                //'categoria_name' => $row->categoria['nombre'],
+                'precio' => $row['precio']
             ));
+            //,'orden' => $row['orden']
         }
         $app->response()->write(json_encode($result));
     });

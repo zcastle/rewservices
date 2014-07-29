@@ -183,10 +183,10 @@ $app->group('/pedido', function () use ($app, $db, $result) {
         $app->response()->write(json_encode($result));
     });
 
-    $app->get('/resumen/:cajaId', function($cajaId) use($app, $db, $result) {
-        $rowsAtencion = $db->atenciones; //->where('caja_id', $cajaId)
-        $caja = $db->caja->where('id', $cajaId)->fetch();
-        $rowsVenta = $db->venta->where('dia', $caja['dia']);
+    $app->get('/resumen/:cajaId/:cajeroId', function($cajaId, $cajeroId) use($app, $db, $result) {
+        $rowsAtencion = $db->atenciones('caja_id', $cajaId)->and('cajero_id', $cajeroId);
+        $caja = $db->caja('id', $cajaId)->fetch();
+        $rowsVenta = $db->venta('dia', $caja['dia'])->and('caja_id', $cajaId)->and('cajero_id', $cajeroId);
         if($rowsAtencion->fetch()){
             array_push($result['data'], array(
                 'Atenciones' => $rowsAtencion->sum('cantidad * precio'),
@@ -212,6 +212,32 @@ $app->group('/pedido', function () use ($app, $db, $result) {
                 $result['error'] = 'destinoexiste';
             } else {
                 $rowsAtencion->update(array('nroatencion' => $nrodestino));
+            }
+        } else {
+            $result['success'] = false;
+        }
+        $app->response()->write(json_encode($result));
+    });
+
+    $app->post('/unir', function() use($app, $db, $result){
+        $nroatencion = $app->request->post('nroatencion');
+        $nrodestino = $app->request->post('nrodestino');
+        $rowsAtencion = $db->atenciones->where('nroatencion', $nroatencion);
+        if($row=$rowsAtencion->fetch()){
+            $rowsAtencionDestino = $db->atenciones->where('nroatencion', $nrodestino);
+            if($rowD=$rowsAtencionDestino->fetch()){
+                $mozo_id = $rowD['mozo_id'];
+                $pax = $row['pax'] + $rowD['pax'];
+                $cajero_id = $rowD['cajero_id'];
+                $rowsAtencion->update(array(
+                    'nroatencion' => $nrodestino,
+                    'mozo_id' => $mozo_id,
+                    'pax' => $pax,
+                    'cajero_id' => $cajero_id
+                ));
+            } else {
+                $result['success'] = false;
+                $result['error'] = 'destinovacio';
             }
         } else {
             $result['success'] = false;
