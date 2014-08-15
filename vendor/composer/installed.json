@@ -6,15 +6,15 @@
         "source": {
             "type": "git",
             "url": "https://github.com/vrana/notorm.git",
-            "reference": "d7f320a3d8da0dbcb17187ad4b9c91a396f5d0c6"
+            "reference": "073b2e3e74827fbed0e22be73e5a9f952e92f0cd"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/vrana/notorm/zipball/d7f320a3d8da0dbcb17187ad4b9c91a396f5d0c6",
-            "reference": "d7f320a3d8da0dbcb17187ad4b9c91a396f5d0c6",
+            "url": "https://api.github.com/repos/vrana/notorm/zipball/073b2e3e74827fbed0e22be73e5a9f952e92f0cd",
+            "reference": "073b2e3e74827fbed0e22be73e5a9f952e92f0cd",
             "shasum": ""
         },
-        "time": "2014-02-09 20:16:02",
+        "time": "2014-06-15 16:13:12",
         "type": "library",
         "installation-source": "source",
         "autoload": {
