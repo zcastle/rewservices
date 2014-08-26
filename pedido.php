@@ -145,6 +145,12 @@ $app->group('/pedido', function () use ($app, $db, $result) {
         $app->response()->write(json_encode($result));
     });
 
+    $app->get('/precuenta/:cajaId/:nroatencion', function($cajaId, $nroatencion) use($app, $db, $result) {
+        $atenciones = $db->atenciones->where('caja_id', $cajaId)->and('nroatencion', $nroatencion);
+        $db->atenciones_p->insert($atenciones);
+        $app->response()->write(json_encode($result));
+    });
+
     $app->post('/liberar/:adminId', function($adminId) use($app, $db, $result) {
         $nroatencion = $app->request->post('nroatencion');
         $rowsAtencion = $db->atenciones->where('nroatencion', $nroatencion);

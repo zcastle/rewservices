@@ -49,7 +49,13 @@ $app->group('/producto', function () use ($app, $db, $result) {
     });
 
     $app->get('/pos/buscar/:nombre', function($nombre) use ($app, $db, $result) {
-        $tb = $db->producto->where('(nombre LIKE ? OR codigo = ?) AND eliminado=?', '%'.$nombre.'%', $nombre, 'N')->order("orden");
+        if( strtoupper(substr($nombre, 0, 2))=='||') {
+            $nombre = substr($nombre, 2);
+            $tb = $db->producto->where('codigo = ? AND eliminado=?', $nombre, 'N')->order("orden");
+        } else {
+            $tb = $db->producto->where('nombre LIKE ? AND eliminado=?', '%'.$nombre.'%', 'N')->order("orden");
+        }
+        
         foreach ($tb as $row) {
             array_push($result['data'], array(
                 'id' => $row['id'],
