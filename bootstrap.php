@@ -11,8 +11,8 @@ $app->config(array(
 
 /*$app->response()->header("Access-Control-Allow-Origin", "*");
 $app->response()->header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-$app->response()->header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, user");
-$app->response()->header("Content-Type", "application/json;charset=utf-8");*/
+$app->response()->header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, user");*/
+$app->response()->header("Content-Type", "application/json;charset=utf-8");
 
 $app->options('/', function() {});
 $app->options('/almacen', function(){});
@@ -39,8 +39,9 @@ $app->options('/guia/detalle/:id', function(){});
 $app->options('/guia/detalle/:guia', function(){});
 $app->options('/guia/procesar/:id', function(){});
 $app->options('/launcher/:id', function(){});
-$app->options('/mesa', function(){});
+$app->options('/mesa/:caja_id', function(){});
 $app->options('/pedido', function(){});
+$app->options('/pedido/:nroatencion/:caja_id', function(){});
 $app->options('/pedido/:id', function(){});
 $app->options('/pedido/tablet', function(){});
 $app->options('/pedido/mesa/:mesa', function(){});
@@ -51,7 +52,8 @@ $app->options('/pedido/actualizar', function(){});
 $app->options('/pedido/actualizar/debug', function(){});
 $app->options('/pedido/actualizar/cliente', function(){});
 $app->options('/pedido/print/precuenta', function(){});
-$app->options('/pedido/resumen/:cajaId', function(){});
+$app->options('/pedido/resumen/cia/:cia', function(){});
+$app->options('/pedido/resumen/cc/:cajaId/:cajeroId', function(){});
 $app->options('/pedido/precuenta/:cajaId/:nroatencion', function(){});
 $app->options('/producto', function(){});
 $app->options('/producto/:id', function(){});
@@ -60,6 +62,8 @@ $app->options('/producto/buscar/:nombre', function(){});
 $app->options('/producto/pos', function(){});
 $app->options('/producto/pos/categoria/:id', function(){});
 $app->options('/producto/pos/buscar/:nombre', function(){});
+$app->options('/producto/posstock/limit/:limit', function(){});
+$app->options('/producto/posstock/:id', function(){});
 $app->options('/producto/tablet/', function() {});
 $app->options('/producto/tienda/', function() {});
 $app->options('/producto/receta/:id', function() {});
@@ -73,13 +77,18 @@ $app->options('/util/ruc/:ruc', function(){});
 $app->options('/usuario', function(){});
 $app->options('/usuario/:id', function(){});
 $app->options('/usuario/tablet', function(){});
+$app->options('/venta/dias', function(){});
+$app->options('/venta/anio/cia/:cia', function(){});
 $app->options('/venta/anular/:caja_id', function(){});
 $app->options('/venta/anular/:caja_id/:cajero_id', function(){});
 
+$app->options('/reporte/ventas/dias/:dia_ini/:dia_fin/:export', function() {});
 
-$dsn = 'mysql:host=localhost;dbname=dbrewsoft2014;';
+//$dsn = 'mysql:host=localhost;dbname=dbrewsoft2014;';
+$dsn = 'mysql:host=mysql.hostinger.es;dbname=u986138578_rew;';
 //$dsn = 'mysql:host=mibarrunto.no-ip.org;dbname=dbrewsoft2014;';
-$username = 'root';
+$username = 'u986138578_rew';
+//$username = 'root';
 $password = '123456';
 try{ 
     $pdo = new PDO($dsn, $username, $password);
@@ -127,7 +136,6 @@ $almacen = function($guia, $producto, $almacen_id) use($db, &$almacen) {
         if(strtolower($unidad_type)=='menor') {
             $cantidadUnidad = $producto->unidad['cantidad'];
             $cantidad = $cantidadUnidad>0 ? $cantidad/$cantidadUnidad : $cantidad;
-
         }
         $cantidad = $producto['cantidad'];
         if(strtolower($guia->tipo_operacion['tipo'])=='s') {

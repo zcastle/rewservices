@@ -2,13 +2,103 @@
 
 $app->group('/pedido', function () use ($app, $db, $result) {
 
-    $app->get('/', function() use ($app, $db, $result) {
-    	$nroatencion = $app->request->get('mesa');
-    	$rows = $db->atenciones->where('nroatencion', $nroatencion);
+    $app->get('/', function() use ($app, $result) {
+        $app->response()->write(json_encode($result));
+    });
+
+    $app->get('/:nroatencion/:caja_id', function($nroatencion, $caja_id) use ($app, $db, $result) {
+    	//$nroatencion = $app->request->get('mesa');
+    	$rows = $db->atenciones->where('nroatencion', $nroatencion)->and('caja_id', $caja_id);
     	foreach ($rows as $row) {
-            $row['cliente_name'] = $db->cliente_proveedor->where('id', $row['cliente_id'])->fetch()['nombre'];
+            $row['cliente_name'] = $db->cliente->where('id', $row['cliente_id'])->fetch()['nombre'];
     		array_push($result['data'], $row);
     	}
+        $app->response()->write(json_encode($result));
+    });
+
+    $app->get('/:id', function($id) use ($app, $db, $result) {
+        //$nroatencion = $app->request->get('mesa');
+        $rows = $db->atenciones->where('nroatencion', $id);
+        foreach ($rows as $row) {
+            $row['cliente_name'] = $db->cliente->where('id', $row['cliente_id'])->fetch()['nombre'];
+            array_push($result['data'], $row);
+        }
+        $app->response()->write(json_encode($result));
+    });
+
+    $app->get('/:id', function($id) use ($app, $db, $result) {
+        $row = $db->atenciones[$id];
+        array_push($result['data'], $row);
+        $app->response()->write(json_encode($result));
+    });
+
+    //PUT
+    $app->put('/:id', function($id) use ($app, $db, $result) {
+        $atenciones = $db->atenciones->where("id", $id);
+        if($row=$atenciones->fetch()) {
+            $values = json_decode($app->request()->put('data'));
+            $edit = $row->update((array)$values);
+        } else {
+            $result['success'] = false;
+        }
+        $app->response()->write(json_encode($result));
+    });
+
+    $app->put('/mesa/:mesa', function($mesa) use ($app, $db, $result) {
+        $rows = $db->atenciones->where('nroatencion', $mesa);
+        if($rows) {
+            $values = json_decode($app->request()->put('data'));
+            $edit = $rows->update((array)$values);
+        } else {
+            $result['success'] = false;
+        }
+        /*$atenciones = $db->atenciones->where('nroatencion', $values->nroatencion);
+        $atenciones->update(array(
+            'mozo_id' => $values->mozo_id,
+            'pax' => $values->pax
+        ));*/
+        $app->response()->write(json_encode($result));
+    });
+
+    $app->post("/", function () use($app, $db, $result) {
+        $values = json_decode($app->request->post('data'));
+        $values->id = null;
+        $values->fechahora = new NotORM_Literal("NOW()"); //date("Y-m-d H:i:s");
+        $create = $db->atenciones->insert((array)$values);
+        array_push($result['data'], array(
+            'id' => $create['id']
+        ));
+        //
+        $atenciones = $db->atenciones->where('nroatencion', $values->nroatencion);
+        $atenciones->update(array(
+            'cajero_id' => $values->cajero_id
+        ));
+        //
+        $app->response()->write(json_encode($result));
+    });
+
+    $app->delete("/:id", function ($id) use($app, $db, $result) {
+        $row = $db->atenciones[$id];
+        if ($row->fetch() && $row->delete()) {
+            $result['delete'] = true;
+        } else {
+            $result['success'] = false;
+            $result['delete'] = false;
+        }
+        $app->response()->write(json_encode($result));
+    });
+
+    $app->delete("/", function () use($app, $db, $result) {
+        $values = json_decode($app->request()->delete('data'));
+        $id = $values->id;
+        $row = $db->atenciones[$id];
+        $result['id'] = $values->id;
+        if ($row->fetch() && $row->delete()) {
+            $result['delete'] = true;
+        } else {
+            $result['success'] = false;
+            $result['delete'] = false;
+        }
         $app->response()->write(json_encode($result));
     });
 
@@ -61,7 +151,7 @@ $app->group('/pedido', function () use ($app, $db, $result) {
             $cajaId = $atencion['caja_id'];
              //$atencion['tipo_documento_id'];
             if($atencion['cliente_id']>0) {
-                $cliente = $db->cliente_proveedor->where('id', $atencion['cliente_id'])->fetch();
+                $cliente = $db->cliente->where('id', $atencion['cliente_id'])->fetch();
                 $lenRuc =strlen($cliente['ruc']);
                 if($lenRuc==11) {
                     $tipoDocumentoId = 2;
@@ -114,7 +204,18 @@ $app->group('/pedido', function () use ($app, $db, $result) {
                 ));
                 $total += $row['cantidad'] * $row['precio'];
             }
+
+            $vIgv = $db->impuesto->select('valor')->where('nombre', 'IGV')->fetch()['valor'];
+            $vServ = $rowCaja->centrocosto['servicio'];
+
+            $base = ($vIgv+$vServ)>0?$total/((($vIgv+$vServ)/100)+1):$total;
+            $igv = $vIgv>0?$base*($vIgv/100):0;
+            $servicio = $vServ>0?$base*($vServ/100):0;
+
             $tbVenta->update(array(
+                'base' => $base,
+                'igv' => $igv,
+                'servicio' => $servicio,
                 'total' => $total
             ));
             $rowsPagos = $db->atenciones_pagos->where('nroatencion', $nroatencion);
@@ -178,8 +279,7 @@ $app->group('/pedido', function () use ($app, $db, $result) {
                 ));
                 $total += $row['precio'] * $row['cantidad'];
             }
-
-            $tbLiberado->update(array(
+            $db->liberado->where('id', $tbLiberado['id'])->update(array(
                 'total' => $total
             ));
 
@@ -188,23 +288,46 @@ $app->group('/pedido', function () use ($app, $db, $result) {
         }
         $app->response()->write(json_encode($result));
     });
+    
+    $app->group('/resumen', function () use ($app, $db, $result) {
 
-    $app->get('/resumen/:cajaId/:cajeroId', function($cajaId, $cajeroId) use($app, $db, $result) {
-        $rowsAtencion = $db->atenciones('caja_id', $cajaId)->and('cajero_id', $cajeroId);
-        $caja = $db->caja('id', $cajaId)->fetch();
-        $rowsVenta = $db->venta('dia', $caja['dia'])->and('caja_id', $cajaId)->and('cajero_id', $cajeroId);
-        if($rowsAtencion->fetch()){
-            array_push($result['data'], array(
-                'Atenciones' => $rowsAtencion->sum('cantidad * precio'),
-                'Ventas' => $rowsVenta->sum('total')
-            ));
-        } else {
-            array_push($result['data'], array(
-                'Atenciones' => 0,
-                'Ventas' => $rowsVenta->sum('total')
-            ));
-        }
-        $app->response()->write(json_encode($result));
+        $app->get('/cia/:cia', function($cia) use($app, $db, $result) {
+            $rowsCC = $db->centrocosto->select('id, nombre');
+            //$result['datases'] = 'algo';
+            foreach ($rowsCC as $row) {
+                $caja = $db->caja('centrocosto_id', $row['id'])->and('tipo', 'C')->fetch();
+                $rowsAtencion = $db->atenciones('caja_id', $caja['id']);
+                $pedido = 0;
+                if($rowsAtencion->fetch()) {
+                    $pedido = $rowsAtencion->sum('cantidad * precio');
+                }
+                array_push($result['data'], array(
+                    'id' => $row['id'],
+                    'centrocosto_name' => $row['nombre'],
+                    'pedido' => $pedido
+                ));
+            }
+            $app->response()->write(json_encode($result));
+        });
+
+        $app->get('/cc/:cajaId/:cajeroId', function($cajaId, $cajeroId) use($app, $db, $result) {
+            $rowsAtencion = $db->atenciones('caja_id', $cajaId)->and('cajero_id', $cajeroId);
+            $caja = $db->caja('id', $cajaId)->fetch();
+            $rowsVenta = $db->venta('dia', $caja['dia'])->and('caja_id', $cajaId)->and('cajero_id', $cajeroId);
+            if($rowsAtencion->fetch()){
+                array_push($result['data'], array(
+                    'Atenciones' => $rowsAtencion->sum('cantidad * precio'),
+                    'Ventas' => $rowsVenta->sum('total')
+                ));
+            } else {
+                array_push($result['data'], array(
+                    'Atenciones' => 0,
+                    'Ventas' => $rowsVenta->sum('total')==null?0:$rowsVenta->sum('total')
+                ));
+            }
+            $app->response()->write(json_encode($result));
+        });
+
     });
 
     $app->post('/cambiar', function() use($app, $db, $result){
@@ -325,82 +448,6 @@ $app->group('/pedido', function () use ($app, $db, $result) {
                 //'stado' => $row['nombre'],
                 'fl_envio' => $row['enviado']
             ));
-        }
-        $app->response()->write(json_encode($result));
-    });
-
-    $app->get('/:id', function($id) use ($app, $db, $result) {
-    	$row = $db->atenciones[$id];
-    	array_push($result['data'], $row);
-        $app->response()->write(json_encode($result));
-    });
-
-    //PUT
-    $app->put('/:id', function($id) use ($app, $db, $result) {
-    	$atenciones = $db->atenciones->where("id", $id);
-    	if($row=$atenciones->fetch()) {
-    		$values = json_decode($app->request()->put('data'));
-    		$edit = $row->update((array)$values);
-    	} else {
-    		$result['success'] = false;
-    	}
-        $app->response()->write(json_encode($result));
-    });
-
-    $app->put('/mesa/:mesa', function($mesa) use ($app, $db, $result) {
-        $rows = $db->atenciones->where('nroatencion', $mesa);
-        if($rows) {
-            $values = json_decode($app->request()->put('data'));
-            $edit = $rows->update((array)$values);
-        } else {
-            $result['success'] = false;
-        }
-        /*$atenciones = $db->atenciones->where('nroatencion', $values->nroatencion);
-        $atenciones->update(array(
-            'mozo_id' => $values->mozo_id,
-            'pax' => $values->pax
-        ));*/
-        $app->response()->write(json_encode($result));
-    });
-
-    $app->post("/", function () use($app, $db, $result) {
-        $values = json_decode($app->request->post('data'));
-        $values->id = null;
-        $values->fechahora = new NotORM_Literal("NOW()"); //date("Y-m-d H:i:s");
-        $create = $db->atenciones->insert((array)$values);
-        array_push($result['data'], array(
-            'id' => $create['id']
-        ));
-        //
-        $atenciones = $db->atenciones->where('nroatencion', $values->nroatencion);
-        $atenciones->update(array(
-            'cajero_id' => $values->cajero_id
-        ));
-        //
-        $app->response()->write(json_encode($result));
-    });
-
-    $app->delete("/:id", function ($id) use($app, $db, $result) {
-        $row = $db->atenciones[$id];
-        if ($row->fetch() && $row->delete()) {
-            $result['delete'] = true;
-        } else {
-            $result['success'] = false;
-            $result['delete'] = false;
-        }
-        $app->response()->write(json_encode($result));
-    });
-
-    $app->delete("/", function () use($app, $db, $result) {
-        $values = json_decode($app->request()->delete('data'));
-        $id = $values->id;
-        $row = $db->atenciones[$id];
-        $result['id'] = $values->id;
-        if ($row->fetch() && $row->delete()) {
-            $result['delete'] = true;
-        } else {
-            $result['success'] = false;
-            $result['delete'] = false;
         }
         $app->response()->write(json_encode($result));
     });

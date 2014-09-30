@@ -7,7 +7,7 @@ $app->group('/guia', function() use ($app, $db, $result, $almacen) {
 			$row['fecha'] = date("d/m/Y", strtotime($row['fecha']));
 			$row['tipo_documento_name'] = $row->tipo_documento['nombre'];
 			$row['tipo_operacion_name'] = $row->tipo_operacion['nombre'];
-			$row['cliente_proveedor_name'] = $row->cliente_proveedor['nombre'];
+			$row['cliente_name'] = $row->cliente['nombre'];
 			if($row['procesado']) {
 				$row['procesado'] = date("d/m/Y", strtotime($row['procesado']));
 			}
@@ -23,7 +23,7 @@ $app->group('/guia', function() use ($app, $db, $result, $almacen) {
 	    	$row['fecha'] = date("d/m/Y", strtotime($row['fecha']));
 			$row['tipo_documento_name'] = $row->tipo_documento['nombre'];
 			$row['tipo_operacion_name'] = $row->tipo_operacion['nombre'];
-			$row['cliente_proveedor_name'] = $row->cliente_proveedor['nombre'];
+			$row['cliente_name'] = $row->cliente['nombre'];
 	        array_push($result['data'], $row);
 	        $result['success'] = true;
 	    }

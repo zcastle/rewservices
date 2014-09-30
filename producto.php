@@ -23,12 +23,81 @@ $app->group('/producto', function () use ($app, $db, $result) {
         foreach ($tb as $row) {
             array_push($result['data'], array(
                 'id' => $row['id'],
+                'codigo' => $row['codigo'],
                 'nombre' => $row['nombre'],
                 'precio' => $row['precio'],
-                'orden' => $row['orden'],
+                //'orden' => $row['orden'],
                 'categoria_id' => $row['categoria_id'],
-                'categoria_name' => $row->categoria['nombre'],
+                'categoria_name' => $row->categoria['nombre']
+            ));
+        }
+        $app->response()->write(json_encode($result));
+    });
+
+    $app->get('/posstock/limit/:limit', function($limit) use ($app, $db, $result) {
+        if($limit>0) {
+            $tb = $db->producto()->limit($limit)->order("nombre");
+        } else {
+            $tb = $db->producto()->order("nombre");
+        }
+        foreach ($tb as $row) {
+            $stock = 0;
+            foreach ($db->stock->where('producto_id', $row['id']) as $res) {
+                $stock += $res['stock'];
+            }
+            array_push($result['data'], array(
+                'id' => $row['id'],
                 'codigo' => $row['codigo'],
+                'nombre' => $row['nombre'],
+                'precio' => $row['precio'],
+                'categoria_name' => $row->categoria['nombre'],
+                'unidad_id' => $row['unidad_id'],
+                'unidad' => $row->unidad['mayor'],
+                'stock' => $stock
+            ));
+        }
+        $app->response()->write(json_encode($result));
+    });
+
+    $app->get('/posstock/:id', function($id) use ($app, $db, $result) {
+        $tb = $db->producto->where('id', $id);
+        if ($row=$tb->fetch()) {
+            $stock = 0;
+            foreach ($db->stock->where('producto_id', $row['id']) as $res) {
+                $stock += $res['stock'];
+            }
+            array_push($result['data'], array(
+                'id' => $row['id'],
+                'codigo' => $row['codigo'],
+                'nombre' => $row['nombre'],
+                'precio' => $row['precio'],
+                'categoria_name' => $row->categoria['nombre'],
+                'unidad_id' => $row['unidad_id'],
+                'unidad' => $row->unidad['mayor'],
+                'stock' => $stock
+            ));
+        } else {
+            $result['success'] = false;
+        }
+        $app->response()->write(json_encode($result));
+    });
+
+    $app->get('/posstock/buscar/:nombre', function($nombre) use ($app, $db, $result) {
+        $tb = $db->producto->where('nombre LIKE ?', '%'.$nombre.'%')->order("nombre");
+        foreach ($tb as $row) {
+            $stock = 0;
+            foreach ($db->stock->where('producto_id', $row['id']) as $res) {
+                $stock += $res['stock'];
+            }
+            array_push($result['data'], array(
+                'id' => $row['id'],
+                'codigo' => $row['codigo'],
+                'nombre' => $row['nombre'],
+                'precio' => $row['precio'],
+                'categoria_name' => $row->categoria['nombre'],
+                'unidad_id' => $row['unidad_id'],
+                'unidad' => $row->unidad['mayor'],
+                'stock' => $stock
             ));
         }
         $app->response()->write(json_encode($result));

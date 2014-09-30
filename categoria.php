@@ -26,7 +26,7 @@ $app->group('/categoria', function () use ($app, $db, $result) {
     });
 
     $app->post("/", function () use($app, $db, $result) {
-        $values = json_decode($app->request()->post()['data']);
+        $values = json_decode($app->request()->post('data'));
         $create = $db->categoria->insert((array)$values);
         $result['data'] = (array)$values;
         $app->response()->write(json_encode($result));
@@ -35,7 +35,7 @@ $app->group('/categoria', function () use ($app, $db, $result) {
     $app->put("/:id", function ($id) use ($app, $db, $result) {
         $tabla = $db->categoria[$id];
         if ($tabla) {
-            $values = json_decode($app->request()->put()['data']);
+            $values = json_decode($app->request()->put('data'));
             $edit = $tabla->update((array)$values);
             $result['edit'] = (bool)$edit;
         } else {
