@@ -45,7 +45,7 @@ $app->options('/pedido/:nroatencion/:caja_id', function(){});
 $app->options('/pedido/:id', function(){});
 $app->options('/pedido/tablet', function(){});
 $app->options('/pedido/mesa/:mesa', function(){});
-$app->options('/pedido/pago/:nroatencion', function(){});
+$app->options('/pedido/pago/:nroatencion/:caja_id', function(){});
 $app->options('/pedido/pagar', function(){});
 $app->options('/pedido/liberar/:adminId', function(){});
 $app->options('/pedido/actualizar', function(){});
@@ -75,6 +75,7 @@ $app->options('/unidad', function(){});
 $app->options('/unidad/producto/:id', function(){});
 $app->options('/util/ruc/:ruc', function(){});
 $app->options('/usuario', function(){});
+$app->options('/usuario/pos/rol/:id', function(){});
 $app->options('/usuario/:id', function(){});
 $app->options('/usuario/tablet', function(){});
 $app->options('/venta/dias', function(){});
@@ -84,12 +85,13 @@ $app->options('/venta/anular/:caja_id/:cajero_id', function(){});
 
 $app->options('/reporte/ventas/dias/:dia_ini/:dia_fin/:export', function() {});
 
-//$dsn = 'mysql:host=localhost;dbname=dbrewsoft2014;';
-$dsn = 'mysql:host=mysql.hostinger.es;dbname=u986138578_rew;';
+$dsn = 'mysql:host=localhost;dbname=dbrewsoft2014;';
+//$dsn = 'mysql:host=mysql.hostinger.es;dbname=u986138578_rew;';
 //$dsn = 'mysql:host=mibarrunto.no-ip.org;dbname=dbrewsoft2014;';
-$username = 'u986138578_rew';
-//$username = 'root';
+//$username = 'u986138578_rew';
+$username = 'root';
 $password = '123456';
+
 try{ 
     $pdo = new PDO($dsn, $username, $password);
 } catch(PDOException $e) { 

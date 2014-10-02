@@ -6,9 +6,10 @@ $app->group('/pedido', function () use ($app, $db, $result) {
         $app->response()->write(json_encode($result));
     });
 
-    $app->get('/:nroatencion/:caja_id', function($nroatencion, $caja_id) use ($app, $db, $result) {
-    	//$nroatencion = $app->request->get('mesa');
-    	$rows = $db->atenciones->where('nroatencion', $nroatencion)->and('caja_id', $caja_id);
+    $app->get('/:nroatencion/:caja_id', function($nroatencion, $cajaId) use ($app, $db, $result) {
+    	$cc_id = $db->caja('id', $cajaId)->fetch()->centrocosto['id'];
+        $cajaId = $db->caja('centrocosto_id', $cc_id)->and('tipo', 'C')->fetch()['id'];
+    	$rows = $db->atenciones->where('nroatencion', $nroatencion)->and('caja_id', $cajaId);
     	foreach ($rows as $row) {
             $row['cliente_name'] = $db->cliente->where('id', $row['cliente_id'])->fetch()['nombre'];
     		array_push($result['data'], $row);
@@ -64,7 +65,10 @@ $app->group('/pedido', function () use ($app, $db, $result) {
         $values = json_decode($app->request->post('data'));
         $values->id = null;
         $values->fechahora = new NotORM_Literal("NOW()"); //date("Y-m-d H:i:s");
+        $cc_id = $db->caja('id', $values->caja_id)->fetch()->centrocosto['id'];
+        $values->caja_id = $db->caja('centrocosto_id', $cc_id)->and('tipo', 'C')->fetch()['id'];
         $create = $db->atenciones->insert((array)$values);
+
         array_push($result['data'], array(
             'id' => $create['id']
         ));
@@ -103,8 +107,8 @@ $app->group('/pedido', function () use ($app, $db, $result) {
     });
 
     $app->group('/pago', function () use ($app, $db, $result) {
-        $app->get('/:nroatencion', function($nroatencion) use ($app, $db, $result) {
-            $rows = $db->atenciones_pagos->where('nroatencion', $nroatencion);
+        $app->get('/:nroatencion/:caja_id', function($nroatencion, $cajaId) use ($app, $db, $result) {
+            $rows = $db->atenciones_pagos->where('nroatencion', $nroatencion)->and('caja_id', $cajaId);
             foreach ($rows as $row) {
                 array_push($result['data'], $row);
             }
@@ -145,9 +149,14 @@ $app->group('/pedido', function () use ($app, $db, $result) {
 
     $app->post('/pagar', function() use ($app, $db, $result) {
         $nroatencion = $app->request->post('nroatencion');
-        $rowsAtencion = $db->atenciones->where('nroatencion', $nroatencion);
+        $cajaId = $app->request->post('caja_id');
+        $cajeroId = $app->request->post('cajero_id');
+        $rowsAtencion = $db->atenciones->where('nroatencion', $nroatencion)->and('caja_id', $cajaId);
         //$atencion = $rowsAtencion->fetch();
         if($atencion= $rowsAtencion->fetch()) {
+            $rowsAtencion->update(array(
+                'cajero_id' => $cajeroId
+            ));
             $cajaId = $atencion['caja_id'];
              //$atencion['tipo_documento_id'];
             if($atencion['cliente_id']>0) {
@@ -376,10 +385,11 @@ $app->group('/pedido', function () use ($app, $db, $result) {
 
     $app->post('/actualizar', function() use($app, $db, $result) {
         $nroatencion = $app->request->post('nroatencion');
+        $cajaId = $app->request->post('caja_id');
         $mozoId = $app->request->post('mozo_id');
         $pax = $app->request->post('pax');
 
-        $rowsAtencion = $db->atenciones->where('nroatencion', $nroatencion);
+        $rowsAtencion = $db->atenciones->where('nroatencion', $nroatencion)->and('caja_id', $cajaId);
         if($rowsAtencion->fetch()){
             $rowsAtencion->update(array(
                 'mozo_id' => $mozoId,
@@ -394,10 +404,10 @@ $app->group('/pedido', function () use ($app, $db, $result) {
         $cajaId = $app->request->post('caja_id');
         $cajeroId = $app->request->post('cajero_id');
 
-        $rowsAtencion = $db->atenciones->where('nroatencion', $nroatencion);
+        $rowsAtencion = $db->atenciones->where('nroatencion', $nroatencion)->and('caja_id', $cajaId);
         if($rowsAtencion->fetch()){
             $rowsAtencion->update(array(
-                'caja_id' => $cajaId,
+                //'caja_id' => $cajaId,
                 'cajero_id' => $cajeroId
             ));
         }

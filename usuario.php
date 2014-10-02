@@ -16,6 +16,17 @@ $app->group('/usuario', function () use ($app, $db, $result) {
         $app->response()->write(json_encode($result));
     });
 
+    $app->get('/pos/rol/:id', function($id) use ($app, $db, $result) {
+        $rows = $db->usuario->select('id, nombre, apellido, usuario, clave, rol_id, centrocosto_id, sexo')->where('eliminado', 'N')->and('rol_id', $id);
+        foreach ($rows as $row) {
+            /*$row['centrocosto_name'] = $row->centrocosto["nombre"];
+            $row['empresa_id'] = $row->centrocosto["empresa_id"];
+            $row['empresa_name'] = $row->centrocosto->empresa["razon_social"];*/
+            array_push($result['data'], $row);
+        }
+        $app->response()->write(json_encode($result));
+    });
+
     //Usuario por ID
     $app->get('/:id', function($id) use ($app, $db, $result) {
     	$row = $db->usuario[$id];

@@ -117,6 +117,10 @@ $app->group('/guia', function() use ($app, $db, $result, $almacen) {
 	    $app->response()->write(json_encode($result));
 	});
 
+	$app->get('/procesar/venta/:id', function(){
+		
+	});
+
 });
 
 ?>

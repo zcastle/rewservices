@@ -2,6 +2,13 @@
 
 require "bootstrap.php";
 
+$recurso = $_SERVER['REQUEST_URI'];
+if(strlen($recurso)>1) {
+	$mod = explode("/",$recurso);
+	include_once $mod[1].'.php';
+}
+
+/*
 $pathBase = dirname(__FILE__);
 $files = scandir($pathBase);
 foreach ($files as $file) {
@@ -12,6 +19,7 @@ foreach ($files as $file) {
         }
     }
 }
+*/
 
 $app->get('/', function() use ($app) {
     $app->response()->write('API');

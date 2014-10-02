@@ -22,7 +22,7 @@ $app->group('/caja', function () use ($app, $db, $result) {
 	});*/
 
 	$app->get('/:id', function($id) use ($app, $db, $result) {
-		$rows = $db->caja->where('id', $id);
+		$rows = $db->caja->select('id, nombre, tipo, centrocosto_id ')->where('id', $id);
 		if ($row=$rows->fetch()) {
 			$row['centrocosto_name'] = utf8_encode($row->centrocosto['nombre']);
 			$row['empresa_name'] = utf8_encode($row->centrocosto->empresa['nombre_comercial']);
