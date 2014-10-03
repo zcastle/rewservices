@@ -72,6 +72,7 @@ $app->options('/tipo_operacion', function(){});
 $app->options('/ubigeo', function(){});
 $app->options('/ubigeo/lima', function(){});
 $app->options('/unidad', function(){});
+$app->options('/unidad/:id', function(){});
 $app->options('/unidad/producto/:id', function(){});
 $app->options('/util/ruc/:ruc', function(){});
 $app->options('/usuario', function(){});

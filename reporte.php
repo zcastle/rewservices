@@ -55,7 +55,7 @@ function mostrar($struct, $index, $data, $export, $c) {
     $struct['cabecera']['cia'] = $c['cia'];
     $struct['cabecera']['del'] = $c['del'];
     $struct['cabecera']['al'] = $c['al'];
-    $reporte = new REPORTE($struct, $index, $data);
+    $reporte = new Reporte($struct, $index, $data);
     if ($export=='true') {
         $reporte->descargar();
     } else {

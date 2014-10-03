@@ -1,9 +1,12 @@
 <?php
 
+include_once('lib/almacen.class.php');
+
 $app->group('/guia', function() use ($app, $db, $result, $almacen) {
 
 	$app->get('/cabecera', function() use ($app, $db, $result) {
-		foreach ($db->guia()->order('fecha DESC, id DESC') as $row) {
+		$guias = $db->guia()->order('fecha DESC, id DESC');
+		foreach ($guias as $row) {
 			$row['fecha'] = date("d/m/Y", strtotime($row['fecha']));
 			$row['tipo_documento_name'] = $row->tipo_documento['nombre'];
 			$row['tipo_operacion_name'] = $row->tipo_operacion['nombre'];
@@ -117,8 +120,27 @@ $app->group('/guia', function() use ($app, $db, $result, $almacen) {
 	    $app->response()->write(json_encode($result));
 	});
 
-	$app->get('/procesar/venta/:id', function(){
-		
+	$app->get('/procesar/venta/dia/:dia', function($dia) use ($app, $db, $result) {
+		$ventas = $db->venta->select('id')->where('dia', $dia)->and('anulado_id', 0);
+		foreach ($ventas as $venta) {
+			$almacen = new Almacen($db, $venta['id'], Almacen::TIPO_OPERACION_VENTA);
+			$detalles = $db->venta_detalle->select('id, cantidad')->where('venta_id', $venta['id']);
+			foreach ($detalles as $detalle) {
+				$producto = $db->producto->select('costo, almacen_id')->where('id', $detalle['id']);
+				$costo = 0; $almacenId = 1;
+				if ($row = $producto->fetch()) {
+					$costo = $row['costo'];
+					$almacenId = $row['almacen_id'];
+				}
+				$almacen->salida(array(
+					'id' => $detalle['id'],
+					'cantidad' => $detalle['cantidad'],
+					'costo' => $costo,
+					'almacenId' => $almacenId
+				));
+			}
+			//print_r($almacen);
+		}
 	});
 
 });

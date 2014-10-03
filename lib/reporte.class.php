@@ -2,7 +2,7 @@
 
 include_once('lib/mypdf.class.php');
 
-class REPORTE {
+class Reporte {
 
 	function __construct($struct, $index, $data) {
 		$this->app = \Slim\Slim::getInstance();
@@ -14,7 +14,7 @@ class REPORTE {
 	public function ver(){
 		try {
 	        $this->app->response()->header("Content-Type", "application/pdf");
-	        $pdf = new MYPDF();
+	        $pdf = new MyPdf();
 	        $pdf->setData($this->struct['cabecera'], $this->struct[$this->index]['detalle']);
 	        $pdf->AddPage();
 	        $pdf->SetFont('courier', '', 9);

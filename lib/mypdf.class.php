@@ -1,5 +1,5 @@
 <?php
-class MYPDF extends TCPDF {
+class MyPdf extends TCPDF {
     
     function __construct() {
         parent::__construct();
