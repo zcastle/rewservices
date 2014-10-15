@@ -58,7 +58,7 @@ $app->options('/pedido/precuenta/:cajaId/:nroatencion', function(){});
 $app->options('/producto', function(){});
 $app->options('/producto/:id', function(){});
 $app->options('/producto/codigo/:codigo', function(){});
-$app->options('/producto/buscar/:nombre', function(){});
+$app->options('/producto/buscar/:nombre/:categoriaId/:grupoId', function(){});
 $app->options('/producto/pos', function(){});
 $app->options('/producto/pos/categoria/:id', function(){});
 $app->options('/producto/pos/buscar/:nombre', function(){});

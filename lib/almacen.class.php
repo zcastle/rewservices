@@ -10,10 +10,10 @@ class Almacen {
         $this->tipoOperacionId = $tipoOperacionId;
     }
 
-    public function ingreso() {
+    public function ingreso(array $producto) {
     }
 
-    public function salida($producto) {
+    public function salida(array $producto) {
         $db = $this->db;
         $receta = $db->receta->select('id, cantidad, almacen_id')->where('producto_id', $producto['id']);
         if($receta->fetch()) {
