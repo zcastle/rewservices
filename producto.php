@@ -118,15 +118,16 @@ $app->group('/producto', function () use ($app, $db, $result) {
     });
 
     $app->get('/pos/buscar/:nombre', function($nombre) use ($app, $db, $result) {
-        if( strtoupper(substr($nombre, 0, 2))=='||') {
-            $nombre = substr($nombre, 2);
-            $tb = $db->producto->where('codigo = ? AND eliminado=?', $nombre, 'N')->order("orden");
-        } else {
-            $tb = $db->producto->where('nombre LIKE ? AND eliminado=?', '%'.$nombre.'%', 'N')->order("orden");
-        }
+        //if( strtoupper(substr($nombre, 0, 2))=='||') {
+        //    $nombre = substr($nombre, 2);
+        //    $tb = $db->producto->where('codigo = ? AND eliminado=?', $nombre, 'N')->order("orden");
+        //} else {
+            $tb = $db->producto->where('(nombre LIKE ? OR codigo = ?) AND eliminado=?', '%'.$nombre.'%', $nombre, 'N')->order("orden");
+        //}
         
         foreach ($tb as $row) {
             array_push($result['data'], array(
+                'codigo' => $row['codigo'],
                 'id' => $row['id'],
                 'nombre' => $row['nombre'],
                 //'categoria_name' => $row->categoria['nombre'],
@@ -147,7 +148,7 @@ $app->group('/producto', function () use ($app, $db, $result) {
         $app->response()->write(json_encode($result));
     });
 
-    $app->get('/buscar/:nombre/:categoriaId/:grupoId', function($nombre, $categoriaId, $grupoId) use ($app, $db, $result) {
+    $app->get('/buscar/:nombre(/:categoriaId(/:grupoId))', function($nombre, $categoriaId=0, $grupoId=0) use ($app, $db, $result) {
         $nombre = $nombre=='null'?'':$nombre;
         $tb = $db->producto('nombre like ? OR codigo=?', '%'.$nombre.'%', $nombre);
         if($categoriaId>0){
@@ -212,13 +213,13 @@ $app->group('/producto', function () use ($app, $db, $result) {
         $producto = $db->producto->where("id", $id);
         if ($row=$producto->fetch()) {
             $values = json_decode($app->request()->put('data'));
-            $existe = $db->producto->where('codigo', $values->codigo)->and('id<>?', $id);
+            /*$existe = $db->producto->where('codigo', $values->codigo)->and('id<>?', $id);
             if ($existe->fetch()) {
                 $result['error'] = true;
                 $result['message'] = 'El codigo ingresado existe';
-            } else {
+            } else {*/
                 $row->update((array)$values);
-            }
+            //}
         } else {
             $result['error'] = true;
             $result['message'] = 'No se ha encontrado el producto con el ID: '+$id;
@@ -254,6 +255,7 @@ $app->group('/producto', function () use ($app, $db, $result) {
     $app->post("/receta", function () use($app, $db, $result) {
         $values = json_decode($app->request->post('data'));
         $create = $db->receta->insert((array)$values);
+        //$result['values'] = $values;
         array_push($result['data'], array(
             'id' => $create['id']
         ));
@@ -269,6 +271,16 @@ $app->group('/producto', function () use ($app, $db, $result) {
         if ($row=$receta->fetch()) {
             $values = json_decode($app->request->put('data'));
             $row->update((array)$values);
+        }
+        $app->response()->write(json_encode($result));
+    });
+
+    $app->delete("/receta/:id", function ($id) use($app, $db, $result) {
+        $receta = $db->receta->where("id", $id);
+        if ($receta->fetch()) {
+            $receta->delete();
+        } else {
+            $result['success'] = false;
         }
         $app->response()->write(json_encode($result));
     });

@@ -28,6 +28,7 @@ $app->options('/categoria/tablet', function(){});
 $app->options('/cliente', function(){});
 $app->options('/cliente/:id', function(){});
 $app->options('/cliente/ruc/:ruc', function(){});
+$app->options('/cliente/buscar/:nombre', function(){});
 $app->options('/corporacion/:caja_id', function(){});
 $app->options('/destino', function(){});
 $app->options('/grupo', function(){});
@@ -58,6 +59,7 @@ $app->options('/pedido/precuenta/:cajaId/:nroatencion', function(){});
 $app->options('/producto', function(){});
 $app->options('/producto/:id', function(){});
 $app->options('/producto/codigo/:codigo', function(){});
+$app->options('/producto/buscar/:nombre', function(){});
 $app->options('/producto/buscar/:nombre/:categoriaId/:grupoId', function(){});
 $app->options('/producto/pos', function(){});
 $app->options('/producto/pos/categoria/:id', function(){});
@@ -83,7 +85,6 @@ $app->options('/venta/dias', function(){});
 $app->options('/venta/anio/cia/:cia', function(){});
 $app->options('/venta/anular/:caja_id', function(){});
 $app->options('/venta/anular/:caja_id/:cajero_id', function(){});
-
 $app->options('/reporte/ventas/dias/:dia_ini/:dia_fin/:export', function() {});
 
 $dsn = 'mysql:host=localhost;dbname=dbrewsoft2014;';
@@ -91,6 +92,7 @@ $dsn = 'mysql:host=localhost;dbname=dbrewsoft2014;';
 //$dsn = 'mysql:host=mibarrunto.no-ip.org;dbname=dbrewsoft2014;';
 //$username = 'u986138578_rew';
 $username = 'root';
+//$username = 'smart';
 $password = '123456';
 
 try{ 

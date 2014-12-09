@@ -1,1 +1,37 @@
-<?php /*** PHP Encode v1.0 by zeura.com ***/ $XnNhAWEnhoiqwciqpoHH=file(__FILE__);eval(base64_decode("aWYoIWZ1bmN0aW9uX2V4aXN0cygiWWl1bklVWTc2YkJodWhOWUlPOCIpKXtmdW5jdGlvbiBZaXVuSVVZNzZiQmh1aE5ZSU84KCRnLCRiPTApeyRhPWltcGxvZGUoIlxuIiwkZyk7JGQ9YXJyYXkoNjU1LDIzNiw0MCk7aWYoJGI9PTApICRmPXN1YnN0cigkYSwkZFswXSwkZFsxXSk7ZWxzZWlmKCRiPT0xKSAkZj1zdWJzdHIoJGEsJGRbMF0rJGRbMV0sJGRbMl0pO2Vsc2UgJGY9dHJpbShzdWJzdHIoJGEsJGRbMF0rJGRbMV0rJGRbMl0pKTtyZXR1cm4oJGYpO319"));eval(base64_decode(YiunIUY76bBhuhNYIO8($XnNhAWEnhoiqwciqpoHH)));eval(ZsldkfhGYU87iyihdfsow(YiunIUY76bBhuhNYIO8($XnNhAWEnhoiqwciqpoHH,2),YiunIUY76bBhuhNYIO8($XnNhAWEnhoiqwciqpoHH,1)));__halt_compiler();aWYoIWZ1bmN0aW9uX2V4aXN0cygiWnNsZGtmaEdZVTg3aXlpaGRmc293Iikpe2Z1bmN0aW9uIFpzbGRrZmhHWVU4N2l5aWhkZnNvdygkYSwkaCl7aWYoJGg9PXNoYTEoJGEpKXtyZXR1cm4oZ3ppbmZsYXRlKGJhc2U2NF9kZWNvZGUoJGEpKSk7fWVsc2V7ZWNobygiRXJyb3I6IEZpbGUgTW9kaWZpZWQiKTt9fX0=35e61a4b2237e98f63eabd51f9b3c177d0c308f5XVJha9swEP3cQP6DGkwlldRePwdnZJsHgcE6tx2MUIxrnxeBK2mSTAPD/313duqkEwgfuvfePT/JwZ9OOWCLZ2OCD660sd3bxWo+m88iB1XnvGEpi4r7LP+Z5TueZz8es/uH4jHf8ieEqUYgrQUt3uByfSvZ3/nsInoxNXLhYFtTg1gki+WE2d0S+SKqjA4KNCAOZazxglhLxj9ySQCUnzBpmjZl60GS+Js6fWJOpjnhewaIYOcI3z2j9FH3w5JNevKchztJrFM6FCN2HK+rtquhMLqCYRQe9pRNco352DLsP5WezNfK6fIFRFF83X7LioLYUaNa8OSgKjUCxESgbmMclNWeiSOs9GyohuwYLvz1S+WLgTg05LFBK1K6oYshRSpP2vGXbZ59fvie/8I7u9vkGyzjUWB14o/XFkxrXgH1SWLH4RBAe2U0f5JpyikbdnU12rpMudI1HOL/T989HD65nwa9S5A4Zy76seyHUK+T4dGV1t6sf0MQPOFL1nS6CuhISNZh0ILa04wR68Bboz0IebN+dSqA4Ju77fB8erk6aboOVVb/AA==
+<?php
+
+require "bootstrap.php";
+
+$recurso = $_SERVER['REQUEST_URI'];
+if(strlen($recurso)>1) {
+	$mod = explode("/",$recurso)[1];
+	$contiene = strpos($mod, '?');
+	if($contiene===false){
+		$mod = $mod.'.php';
+	} else {
+		$mod = substr($mod, 0, $contiene).'.php';
+	}
+	//print_r($mod);
+	include_once $mod;
+}
+
+/*
+$pathBase = dirname(__FILE__);
+$files = scandir($pathBase);
+foreach ($files as $file) {
+    if(!is_dir($file)){
+        $info = pathinfo($pathBase.DIRECTORY_SEPARATOR.$file);
+        if(strtolower($info['extension'])=='php' && $file!='index.php' && $file!='bootstrap.php') {
+            include_once $file;
+        }
+    }
+}
+*/
+
+$app->get('/', function() use ($app) {
+    $app->response()->write('API');
+});
+
+$app->run();
+
+?>

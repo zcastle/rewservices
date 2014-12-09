@@ -29,6 +29,14 @@ $app->group('/cliente', function () use ($app, $db, $result) {
 	    $app->response()->write(json_encode($result));
 	});
 
+	$app->get('/buscar/:nombre', function($nombre) use ($app, $db, $result) {
+		$rows = $db->cliente->where('ruc = ? OR nombre LIKE ?', $nombre, '%'.$nombre.'%');
+		foreach ($rows as $row) {
+			array_push($result['data'], $row);
+		}
+	    $app->response()->write(json_encode($result));
+	});
+
 	$app->post('/', function() use($app, $db, $result) {
         $values = json_decode($app->request->post('data'));
         $values->id = null;
