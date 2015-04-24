@@ -2,6 +2,15 @@
 
 $app->group('/venta', function () use ($app, $db, $result) {
 
+    $app->post('/sync', function() use ($app, $db, $result) {
+        $data = $app->request->post('data');
+        if($data){
+            
+        }
+
+        $app->response()->write(json_encode($result));
+    });
+
     function formatValue($val) {
         if ($val instanceof DateTime) {
             return $val->format("d/m/Y"); //! may be driver specific

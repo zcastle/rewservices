@@ -1,127 +1,20 @@
 [
     {
-        "name": "slim/slim",
-        "version": "2.4.3",
-        "version_normalized": "2.4.3.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/codeguy/Slim.git",
-            "reference": "4906b77a07c7bd6ff1a99aea903e940a2d4fa106"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/codeguy/Slim/zipball/4906b77a07c7bd6ff1a99aea903e940a2d4fa106",
-            "reference": "4906b77a07c7bd6ff1a99aea903e940a2d4fa106",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "suggest": {
-            "ext-mcrypt": "Required for HTTP cookie encryption"
-        },
-        "time": "2014-04-05 18:33:59",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-0": {
-                "Slim": "."
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Josh Lockhart",
-                "email": "info@joshlockhart.com",
-                "homepage": "http://www.joshlockhart.com/"
-            }
-        ],
-        "description": "Slim Framework, a PHP micro framework",
-        "homepage": "http://github.com/codeguy/Slim",
-        "keywords": [
-            "microframework",
-            "rest",
-            "router"
-        ]
-    },
-    {
-        "name": "phpoffice/phpexcel",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/PHPOffice/PHPExcel.git",
-            "reference": "e69a5e4d0ffa7fb6f171859e0a04346e580df30b"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/PHPOffice/PHPExcel/zipball/e69a5e4d0ffa7fb6f171859e0a04346e580df30b",
-            "reference": "e69a5e4d0ffa7fb6f171859e0a04346e580df30b",
-            "shasum": ""
-        },
-        "require": {
-            "ext-xml": "*",
-            "ext-xmlwriter": "*",
-            "php": ">=5.2.0"
-        },
-        "time": "2014-03-02 15:22:49",
-        "type": "library",
-        "installation-source": "source",
-        "autoload": {
-            "psr-0": {
-                "PHPExcel": "Classes/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "LGPL"
-        ],
-        "authors": [
-            {
-                "name": "Maarten Balliauw",
-                "homepage": "http://blog.maartenballiauw.be"
-            },
-            {
-                "name": "Mark Baker"
-            },
-            {
-                "name": "Franck Lefevre",
-                "homepage": "http://blog.rootslabs.net"
-            },
-            {
-                "name": "Erik Tilt"
-            }
-        ],
-        "description": "PHPExcel - OpenXML - Read, Create and Write Spreadsheet documents in PHP - Spreadsheet engine",
-        "homepage": "http://phpexcel.codeplex.com",
-        "keywords": [
-            "OpenXML",
-            "excel",
-            "php",
-            "spreadsheet",
-            "xls",
-            "xlsx"
-        ]
-    },
-    {
         "name": "vrana/notorm",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
         "source": {
             "type": "git",
             "url": "https://github.com/vrana/notorm.git",
-            "reference": "67996dff1fca3abf601c2678912842ae480fc4a6"
+            "reference": "e49d5d2f1bfe440dc82b61f46172635dfcb6f6dd"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/vrana/notorm/zipball/67996dff1fca3abf601c2678912842ae480fc4a6",
-            "reference": "67996dff1fca3abf601c2678912842ae480fc4a6",
+            "url": "https://api.github.com/repos/vrana/notorm/zipball/e49d5d2f1bfe440dc82b61f46172635dfcb6f6dd",
+            "reference": "e49d5d2f1bfe440dc82b61f46172635dfcb6f6dd",
             "shasum": ""
         },
-        "time": "2014-09-15 04:51:29",
+        "time": "2014-10-30 16:55:08",
         "type": "library",
         "installation-source": "source",
         "autoload": {
@@ -154,20 +47,20 @@
         "source": {
             "type": "git",
             "url": "https://github.com/tecnickcom/TCPDF.git",
-            "reference": "00f7613b211a1aab3ab02a30bd14bc488ff72b44"
+            "reference": "d7071cbf26ac735f3883afaf895aba4fe394140b"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/tecnickcom/TCPDF/zipball/00f7613b211a1aab3ab02a30bd14bc488ff72b44",
-            "reference": "00f7613b211a1aab3ab02a30bd14bc488ff72b44",
+            "url": "https://api.github.com/repos/tecnickcom/TCPDF/zipball/d7071cbf26ac735f3883afaf895aba4fe394140b",
+            "reference": "d7071cbf26ac735f3883afaf895aba4fe394140b",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2014-10-20 20:04:11",
+        "time": "2014-12-18 13:36:04",
         "type": "library",
-        "installation-source": "source",
+        "installation-source": "dist",
         "autoload": {
             "classmap": [
                 "fonts",
@@ -210,6 +103,113 @@
             "pdf",
             "pdf417",
             "qrcode"
+        ]
+    },
+    {
+        "name": "phpoffice/phpexcel",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/PHPOffice/PHPExcel.git",
+            "reference": "c40bb233bfa59fe8aadc6f3714cf500ec2c38e0f"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/PHPOffice/PHPExcel/zipball/c40bb233bfa59fe8aadc6f3714cf500ec2c38e0f",
+            "reference": "c40bb233bfa59fe8aadc6f3714cf500ec2c38e0f",
+            "shasum": ""
+        },
+        "require": {
+            "ext-xml": "*",
+            "ext-xmlwriter": "*",
+            "php": ">=5.2.0"
+        },
+        "time": "2014-12-18 21:56:47",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "psr-0": {
+                "PHPExcel": "Classes/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL"
+        ],
+        "authors": [
+            {
+                "name": "Maarten Balliauw",
+                "homepage": "http://blog.maartenballiauw.be"
+            },
+            {
+                "name": "Mark Baker"
+            },
+            {
+                "name": "Franck Lefevre",
+                "homepage": "http://blog.rootslabs.net"
+            },
+            {
+                "name": "Erik Tilt"
+            }
+        ],
+        "description": "PHPExcel - OpenXML - Read, Create and Write Spreadsheet documents in PHP - Spreadsheet engine",
+        "homepage": "http://phpexcel.codeplex.com",
+        "keywords": [
+            "OpenXML",
+            "excel",
+            "php",
+            "spreadsheet",
+            "xls",
+            "xlsx"
+        ]
+    },
+    {
+        "name": "slim/slim",
+        "version": "2.5.0",
+        "version_normalized": "2.5.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/codeguy/Slim.git",
+            "reference": "04958a10ed95bc7bc97568e573877d4f9b62db48"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/codeguy/Slim/zipball/04958a10ed95bc7bc97568e573877d4f9b62db48",
+            "reference": "04958a10ed95bc7bc97568e573877d4f9b62db48",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "suggest": {
+            "ext-mcrypt": "Required for HTTP cookie encryption"
+        },
+        "time": "2014-12-09 19:59:29",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Slim": "."
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Josh Lockhart",
+                "email": "info@joshlockhart.com",
+                "homepage": "http://www.joshlockhart.com/"
+            }
+        ],
+        "description": "Slim Framework, a PHP micro framework",
+        "homepage": "http://github.com/codeguy/Slim",
+        "keywords": [
+            "microframework",
+            "rest",
+            "router"
         ]
     }
 ]

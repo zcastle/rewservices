@@ -1,6 +1,6 @@
 <?php
 date_default_timezone_set('America/Lima');
-$DEBUG = false;
+$DEBUG = true;
 
 require 'vendor/autoload.php';
 
@@ -87,12 +87,14 @@ $app->options('/venta/anular/:caja_id', function(){});
 $app->options('/venta/anular/:caja_id/:cajero_id', function(){});
 $app->options('/reporte/ventas/dias/:dia_ini/:dia_fin/:export', function() {});
 
-$dsn = 'mysql:host=localhost;dbname=dbrewsoft2014;';
+//$dsn = 'mysql:host=10.10.10.20;dbname=dbrewsoft15;';
 //$dsn = 'mysql:host=mysql.hostinger.es;dbname=u986138578_rew;';
 //$dsn = 'mysql:host=mibarrunto.no-ip.org;dbname=dbrewsoft2014;';
+$dsn = 'mysql:host=localhost;dbname=dbrewsoft2014;';
 //$username = 'u986138578_rew';
 $username = 'root';
 //$username = 'smart';
+//$password = 'gob2385++';
 $password = '123456';
 
 try{ 
@@ -112,7 +114,7 @@ $result = array();
 $result['success'] = true;
 $result['data'] = array();
 
-$authenticate = function() use($DEBUG) {
+/*$authenticate = function() use($DEBUG) {
     if(!$DEBUG) {
         $app = \Slim\Slim::getInstance();
     	$user = $app->request->headers->get('http_user');
@@ -125,9 +127,9 @@ $authenticate = function() use($DEBUG) {
         )));
         $app->stop();
     }
-};
+};*/
 
-$almacen = function($guia, $producto, $almacen_id) use($db, &$almacen) {
+/*$almacen = function($guia, $producto, $almacen_id) use($db, &$almacen) {
     $producto_id = $producto['producto_id'];
     $receta = $db->receta->where('producto_id', $producto_id);
     if($receta->fetch()) {
@@ -174,6 +176,6 @@ $almacen = function($guia, $producto, $almacen_id) use($db, &$almacen) {
     $guia->update(array(
         'procesado' => new NotORM_Literal("NOW()")
     ));
-};
+};*/
 
 ?>
