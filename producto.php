@@ -141,6 +141,7 @@ $app->group('/producto', function () use ($app, $db, $result) {
     $app->get('/codigo/:codigo', function($codigo) use ($app, $db, $result) {
         $tb = $db->producto->where('codigo', $codigo);
         if ($row = $tb->fetch()) {
+            $row['unidad_name'] = $row->unidad["mayor"];
             array_push($result['data'], $row);
         } else {
             $result['success'] = false;

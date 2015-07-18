@@ -3,6 +3,7 @@ date_default_timezone_set('America/Lima');
 $DEBUG = true;
 
 require 'vendor/autoload.php';
+require 'lib/messages.class.php';
 
 $app = new \Slim\Slim();
 $app->config(array(
@@ -129,7 +130,7 @@ $result['data'] = array();
     }
 };*/
 
-/*$almacen = function($guia, $producto, $almacen_id) use($db, &$almacen) {
+$almacen = function($guia, $producto, $almacen_id) use($db, &$almacen) {
     $producto_id = $producto['producto_id'];
     $receta = $db->receta->where('producto_id', $producto_id);
     if($receta->fetch()) {
@@ -176,6 +177,6 @@ $result['data'] = array();
     $guia->update(array(
         'procesado' => new NotORM_Literal("NOW()")
     ));
-};*/
+};
 
 ?>
