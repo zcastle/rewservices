@@ -1,6 +1,6 @@
 {
     "require": {
-        "slim/slim": "2.*",
+        "slim/slim": "~2.*",
         "vrana/notorm": "dev-master",
         "tecnick.com/tcpdf": "dev-master",
         "phpoffice/phpexcel": "dev-master"
