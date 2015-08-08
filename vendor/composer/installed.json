@@ -89,24 +89,84 @@
         ]
     },
     {
-        "name": "tecnick.com/tcpdf",
-        "version": "6.2.9",
-        "version_normalized": "6.2.9.0",
+        "name": "mike42/escpos-php",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
         "source": {
             "type": "git",
-            "url": "https://github.com/tecnickcom/TCPDF.git",
-            "reference": "fa6ab8a1e1fbabb9e6cfd2f807514fa1497240e4"
+            "url": "https://github.com/mike42/escpos-php.git",
+            "reference": "2bdd99ebe251ed7bb18bf86db0a430b6ec1103d8"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/tecnickcom/TCPDF/zipball/fa6ab8a1e1fbabb9e6cfd2f807514fa1497240e4",
-            "reference": "fa6ab8a1e1fbabb9e6cfd2f807514fa1497240e4",
+            "url": "https://api.github.com/repos/mike42/escpos-php/zipball/2bdd99ebe251ed7bb18bf86db0a430b6ec1103d8",
+            "reference": "2bdd99ebe251ed7bb18bf86db0a430b6ec1103d8",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2015-06-18 09:12:38",
+        "require-dev": {
+            "phpunit/phpunit": "4.5.*"
+        },
+        "time": "2015-08-02 11:15:59",
+        "type": "library",
+        "installation-source": "source",
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Roni Saha",
+                "email": "roni.cse@gmail.com"
+            },
+            {
+                "name": "Michael Billington",
+                "email": "michael.billington@gmail.com"
+            },
+            {
+                "name": "Gergely Radics",
+                "email": "gerifield@ustream.tv"
+            },
+            {
+                "name": "Warren Doyle",
+                "email": "w.doyle@fuelled.co"
+            },
+            {
+                "name": "vharo",
+                "email": "vharo@geepok.com"
+            }
+        ],
+        "description": "Thermal receipt printer library, for use with ESC/POS compatible printers",
+        "homepage": "https://github.com/mike42/escpos-php",
+        "keywords": [
+            "ESC-POS",
+            "driver",
+            "escpos",
+            "print",
+            "receipt"
+        ]
+    },
+    {
+        "name": "tecnick.com/tcpdf",
+        "version": "6.2.10",
+        "version_normalized": "6.2.10.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/tecnickcom/TCPDF.git",
+            "reference": "25394f75d63a46d8c60b940e5e8519369b5964eb"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/tecnickcom/TCPDF/zipball/25394f75d63a46d8c60b940e5e8519369b5964eb",
+            "reference": "25394f75d63a46d8c60b940e5e8519369b5964eb",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2015-07-28 15:28:45",
         "type": "library",
         "installation-source": "dist",
         "autoload": {

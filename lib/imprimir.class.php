@@ -1,6 +1,7 @@
 <?php
 
-require_once('lib/escpos-php/Escpos.php');
+//require_once('lib/escpos-php/Escpos.php');
+require_once('vendor/mike42/escpos-php/Escpos.php');
 
 class Imprimir {
 

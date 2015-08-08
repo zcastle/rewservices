@@ -19,8 +19,6 @@ $app->group('/imprimir', function () use ($app, $db, $result) {
 
 		$imprimir->precuenta($atencion, null);
 
-
-
 		$app->response()->write(json_encode($atencion));
 	});
 
