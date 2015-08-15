@@ -88,6 +88,9 @@ $app->options('/venta/anular/:caja_id', function(){});
 $app->options('/venta/anular/:caja_id/:cajero_id', function(){});
 $app->options('/reporte/ventas/dias/:dia_ini/:dia_fin/:export', function() {});
 
+$app->options('/imprimir/precuenta/:cajaId/:nroAtencion', function() {});
+$app->options('/imprimir/comprobante/:id', function() {});
+
 //$dsn = 'mysql:host=10.10.10.20;dbname=dbrewsoft15;';
 //$dsn = 'mysql:host=mysql.hostinger.es;dbname=u986138578_rew;';
 //$dsn = 'mysql:host=mibarrunto.no-ip.org;dbname=dbrewsoft2014;';

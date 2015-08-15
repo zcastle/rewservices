@@ -26,9 +26,11 @@ class Imprimir {
 
 	private $printer = null;
 	private $response = array(
-		"success" => true,
-		"error" => false,
-		"message" => ""
+		"data" => array(
+			"success" => true,
+			"error" => false,
+			"message" => ""
+		)
 	);
 
 	private $cia = null;
@@ -58,7 +60,6 @@ class Imprimir {
         }
         $printer->_center(false);
         $printer->_println(str_repeat("-",40));
-        
 
         $printer->_println("FECHA : ".Util::now());
         $cabecera = $atencion->fetch();
@@ -70,11 +71,11 @@ class Imprimir {
         $printer->_println(str_repeat("-",40));
         $total = 0.0;
 		foreach ($atencion as $row) {
-			$can = Util::left($row['cantidad'], 3);
-			$pro = Util::left($row['producto_name'], 19);
-			$pre = Util::right(number_format($row['precio'], 2), 7);
-			$tot = Util::right(number_format($pre*$can, 2), 8);
-			$printer->_println("$can $pro $pre $tot");
+			$can = Util::left($row['cantidad'], 4);
+			$pro = Util::left($row['producto_name'], 17);
+			$pre = Util::right(number_format($row['precio'], 2), 9);
+			$tot = Util::right(number_format($row['cantidad']*$row['precio'], 2), 10);
+			$printer->_println("$can$pro$pre$tot");
 			$total += (double)$row['cantidad']*(double)$row['precio'];
 		}
 		$printer->_println(str_repeat("-",40));
@@ -85,7 +86,7 @@ class Imprimir {
         $printer->feed();
         $printer->_println("RAZON SOCIAL:---------------------------");
         $printer->feed();
-        $printer->_println("----------------------------------------");
+        $printer->_println(str_repeat("-",40));
         $printer->feed();
         $printer->_center(true);
         $printer->_println($config["despedida"]);
@@ -140,11 +141,11 @@ class Imprimir {
         $printer->_println(str_repeat("-",40));
         $total = 0.0;
 		foreach ($detalle as $row) {
-			$can = Util::left($row['cantidad'], 3);
-			$pro = Util::left($row['producto_name'], 19);
-			$pre = Util::right(number_format($row['precio'], 2), 7);
-			$tot = Util::right(number_format($pre*$can, 2), 8);
-			$printer->_println("$can $pro $pre $tot");
+			$can = Util::left($row['cantidad'], 4);
+			$pro = Util::left($row['producto_name'], 17);
+			$pre = Util::right(number_format($row['precio'], 2), 9);
+			$tot = Util::right(number_format($row['cantidad']*$row['precio'], 2), 10);
+			$printer->_println("$can$pro$pre$tot");
 			$total += (double)$row['cantidad']*(double)$row['precio'];
 		}
 		$printer->_println(str_repeat("-",40));
@@ -160,6 +161,16 @@ class Imprimir {
             }
 		}
 		$printer->_println("TOTAL                 S/.     ".Util::right(number_format($total, 2), 10));
+		$printer->feed();
+		//if ($cabecera['cliente_id'] > 0) {
+            $printer->_println("CLIENTE: ".$cabecera['cliente_id']);
+            //$printer->_println("RUC: " + cabecera.getCliente().getRuc());
+        //}
+        $printer->feed();
+        $printer->_center(true);
+        $printer->_println($config["despedida"]);
+        $printer->_center(false);
+
 
 		$printer->_cutFull();
 		$printer->close();

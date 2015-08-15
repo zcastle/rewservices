@@ -2,11 +2,11 @@
 
 class Util {
 
-	public static function left($text, $len){
-		return substr($text.str_repeat(" ", $len), 0, $len);
+	public static function left($text, $len, $char=" "){
+		return substr($text.str_repeat($char, $len), 0, $len);
 	}
 
-	public static function right($text, $len, $char=""){
+	public static function right($text, $len, $char=" "){
 		return substr(str_repeat($char, $len).$text, $len*-1);
 	}
 

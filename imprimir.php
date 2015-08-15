@@ -64,6 +64,7 @@ $app->group('/imprimir', function () use ($app, $db, $result) {
 		$numero = $venta['numero'];
 		if($row = $caja->fetch()){
 			$cia = $row->centrocosto->empresa;
+			$despedida = $row->centrocosto["mensaje"];
 			$registradora = $row['seriecaja'];
 			$autorizacion = $row['autorizacion'];
 			$impresoraPrecuenta = $tipo==Imprimir::FACTURA ? $row['impresora_f'] : $row['impresora_b'];
@@ -76,6 +77,7 @@ $app->group('/imprimir', function () use ($app, $db, $result) {
 
 		$response = $imprimir->comprobante($cabecera, $detalle, array(
 			"cajero" => $cajero,
+			"despedida" => $despedida,
 			"registradora" => null,
 			"autorizacion" => null,
 			"factura" => $tipo==Imprimir::FACTURA ? true : false,

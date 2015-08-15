@@ -34,7 +34,8 @@ foreach ($files as $file) {
 */
 
 $app->get('/', function() use ($app) {
-    $app->response()->write('API');
+    //$app->response()->write('API');
+    $app->response()->write(substr(str_repeat(" ", 10)."10.00", 10*-1));
 });
 
 $app->run();
