@@ -9,6 +9,8 @@ class Imprimir {
 
 	const FACTURA = 2;
 	const BOLETA = 4;
+    const ENVIO_ADD = "add";
+    const ENVIO_REMOVE = "remove";
 
 	private $config = array(
 		"cabecera" => false,
@@ -21,7 +23,8 @@ class Imprimir {
 		"serie" => "",
 		"numero" => "",
 		"igv" => 18,
-		"servicio" => 0
+		"servicio" => 0,
+        "total" => 0
 	);
 
 	private $printer = null;
@@ -35,7 +38,7 @@ class Imprimir {
 
 	private $cia = null;
 
-	function __construct($pathPrint, $cia) {
+	function __construct($pathPrint, $cia=null) {
 		$this->printer = new REWEscpos($pathPrint);
 		$this->cia = $cia;
 	}
@@ -45,7 +48,6 @@ class Imprimir {
 		$printer = $this->printer;
 		$cia = $this->cia;
 
-		$printer->setFont(REWEscpos::FONT_B);
 		$printer->_center(true);
 		if ($this->config["cabecera"]) {
             $printer->_println("P R E C U E N T A");
@@ -97,12 +99,11 @@ class Imprimir {
 		return $this->response;
 	}
 
-	public function comprobante($cabecera, $detalle, array $config = null){
+	public function comprobante($cliente, $detalle, array $config = null){
 		$config = $config ? $config : $this->config;
 		$printer = $this->printer;
 		$cia = $this->cia;
 
-		$printer->setFont(REWEscpos::FONT_B);
 		$printer->_center(true);
 		if ($cia["nombre_comercial"]) {
             $printer->_println($cia["nombre_comercial"]);
@@ -132,10 +133,7 @@ class Imprimir {
         $printer->_center(false);
         $printer->_println(str_repeat("-",40));
         $printer->_println("FECHA : ".Util::now());
-        //$cabecera = $atencion->fetch();
-        //$printer->_println("MESA  : ".$cabecera["nroatencion"]." - PAX: ".$cabecera["pax"]);
         $printer->_println("CAJERO: ".$config["cajero"]);
-        //$printer->_println("MOZO  : ".$config["mozo"]);
         $printer->_println(str_repeat("-",40));
         $printer->_println("CANT PRODUCTO            UNIT. TOTAL S/.");
         $printer->_println(str_repeat("-",40));
@@ -162,10 +160,11 @@ class Imprimir {
 		}
 		$printer->_println("TOTAL                 S/.     ".Util::right(number_format($total, 2), 10));
 		$printer->feed();
-		//if ($cabecera['cliente_id'] > 0) {
-            $printer->_println("CLIENTE: ".$cabecera['cliente_id']);
-            //$printer->_println("RUC: " + cabecera.getCliente().getRuc());
-        //}
+		if ($cliente['cliente_id'] > 0) {
+            $printer->_println("CLIENTE: ".$cliente['nombre']);
+            $printer->_println("RUC: ".$cliente['ruc']);
+            $printer->_println("DIRECCION: ".$cliente['direccion']);
+        }
         $printer->feed();
         $printer->_center(true);
         $printer->_println($config["despedida"]);
@@ -176,6 +175,89 @@ class Imprimir {
 		$printer->close();
 		return $this->response;
 	}
+
+    public function liberar($cabecera, array $config = null){
+        $config = $config ? $config : $this->config;
+        $printer = $this->printer;
+
+        $printer->_hr();
+        $printer->_center(true);
+        $printer->_println("M E S A  L I B E R A D A");
+        $printer->_center(false);
+        $printer->_hr();
+
+        $date = new DateTime($cabecera['fecha']);
+        $printer->_println("FECHA : ".$date->format('d-m-Y H:i:s'));
+        $printer->_println("MESA  : ".$cabecera['nroatencion']);
+        $printer->_println("CAJERO: ".$config['cajero']);
+        $printer->_println("MONTO : ".number_format($config['total'], 2));
+        
+        $printer->_cutFull();
+        $printer->close();
+        return $this->response;
+    }
+
+    public function pedido($atencion, $destino, array $config = null, $tipo=Imprimir::ENVIO_ADD){
+        $config = $config ? $config : $this->config;
+        $printer = $this->printer;
+
+        $printer->_hr();
+        $printer->_center(true);
+        if($tipo==Imprimir::ENVIO_ADD){
+            $printer->_println("PEDIDO NUEVO");
+        }else{
+            $printer->_println("PEDIDO ELIMINADO");
+        }
+        $printer->_center(false);
+        $printer->_hr();
+
+        $row = $atencion->fetch();
+        $printer->_println("FECHA  : ".Util::now());
+        $printer->_println("MESA   : ".$row['nroatencion']." MOZO: ".$config['mozo']);
+        $printer->_println("DESTINO: ".$destino);
+        $printer->_hr();
+        $printer->_println("CANT PRODUCTO");
+        $printer->_hr();
+        foreach ($atencion as $row) {
+            $printer->_print(Util::left($row["cantidad"], 4));
+            $printer->_println(Util::left($row["producto_name"], 36));
+            if($row["mensaje"] && $tipo==Imprimir::ENVIO_ADD) {
+                $printer->_println("   >".$row["mensaje"]);
+            }
+        }
+        $printer->_hr();
+        
+        $printer->_cutFull();
+        $printer->close();
+        return $this->response;
+    }
+
+    public function cierre($comprobantes, $productos, array $config = null){
+        $config = $config ? $config : $this->config;
+        $printer = $this->printer;
+        $cia = $this->cia;
+
+        $printer->_center(true);
+        $printer->_hr();
+        if ($cia["nombre_comercial"]) {
+            $printer->_println($cia["nombre_comercial"]);
+        }
+        $printer->_println($cia["razon_social"]." - ".$cia["ruc"]);
+        $printer->_println($cia["direccion"]);
+        $printer->_println("TLF: ".$cia["telefono"]);
+        $printer->_hr();
+        if ($config["cajero"]==0) {
+            $printer->_println("CIERRE TOTAL");
+        } else {
+            $printer->_println("CIERRE PARCIAL");
+        }
+        $printer->_hr();
+        $printer->_center(false);
+
+        $printer->_cutFull();
+        $printer->close();
+        return $this->response;
+    }
 
 }
 

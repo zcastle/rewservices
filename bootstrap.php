@@ -90,6 +90,9 @@ $app->options('/reporte/ventas/dias/:dia_ini/:dia_fin/:export', function() {});
 
 $app->options('/imprimir/precuenta/:cajaId/:nroAtencion', function() {});
 $app->options('/imprimir/comprobante/:id', function() {});
+$app->options('/imprimir/pedido/liberar/:id', function() {});
+$app->options('/imprimir/pedido/:cajaId/:nroAtencion', function() {});
+$app->options('/imprimir/cierre/:cajaId(/:cajeroId)', function() {});
 
 //$dsn = 'mysql:host=10.10.10.20;dbname=dbrewsoft15;';
 //$dsn = 'mysql:host=mysql.hostinger.es;dbname=u986138578_rew;';

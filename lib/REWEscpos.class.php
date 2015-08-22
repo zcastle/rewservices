@@ -15,6 +15,7 @@ class REWEscpos extends Escpos {
 			}
 		}
 		Parent::__construct($connector);
+		Parent::setFont(REWEscpos::FONT_B);
 	}
 
 	public function _print($text){
@@ -35,6 +36,10 @@ class REWEscpos extends Escpos {
 
 	public function _center($center){
 		Parent::setJustification($center?Parent::JUSTIFY_CENTER:Parent::JUSTIFY_LEFT);
+	}
+
+	public function _hr($len=40){
+		$this->_println(str_repeat("-", $len));
 	}
 
 }
