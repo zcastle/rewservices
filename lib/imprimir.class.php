@@ -8,11 +8,13 @@ require_once('lib/util.class.php');
 class Imprimir {
 
 	const FACTURA = 2;
-	const BOLETA = 4;
+    const BOLETA = 4;
+	const TICKET = 13;
     const ENVIO_ADD = "add";
     const ENVIO_REMOVE = "remove";
 
 	private $config = array(
+        "ticket" => false,
 		"cabecera" => false,
 		"cajero" => "",
 		"mozo" => "",
@@ -108,9 +110,11 @@ class Imprimir {
 		if ($cia["nombre_comercial"]) {
             $printer->_println($cia["nombre_comercial"]);
         }
-        $printer->_println($cia["razon_social"]." - ".$cia["ruc"]);
-        $printer->_println($cia["direccion"]);
-        $printer->_println("TLF: ".$cia["telefono"]);
+        if(!$config['ticket']){
+            $printer->_println($cia["razon_social"]." - ".$cia["ruc"]);
+            $printer->_println($cia["direccion"]);
+            $printer->_println("TLF: ".$cia["telefono"]);
+        }
         $printer->_println(str_repeat("-",40));
         $sunat = null;
         if ($config["registradora"]) {
@@ -119,11 +123,13 @@ class Imprimir {
         if ($config["autorizacion"]) {
             $sunat .= " Autorizacion: ".$config["autorizacion"];
         }
-        if ($sunat) {
+        if ($sunat && !$config['ticket']) {
             $printer->_println($sunat);
         }
         $seq = "TICKET ";
-        if ($config["factura"]) {
+        if ($config['ticket']) {
+            $seq .= "T";
+        } elseif ($config["factura"]) {
             $seq .= "F";
         } else {
             $seq .= "B";
@@ -147,7 +153,7 @@ class Imprimir {
 			$total += (double)$row['cantidad']*(double)$row['precio'];
 		}
 		$printer->_println(str_repeat("-",40));
-		if ($config["factura"]){
+		if ($config["factura"] && !$config['ticket']){
 			$recargo = $config["igv"] + $config["servicio"];
             $sTotal = $total / (($recargo / 100) + 1);
             $igv = $sTotal * ($config["igv"] / 100);
@@ -160,16 +166,17 @@ class Imprimir {
 		}
 		$printer->_println("TOTAL                 S/.     ".Util::right(number_format($total, 2), 10));
 		$printer->feed();
-		if ($cliente['cliente_id'] > 0) {
+		if ($cliente['cliente_id'] > 0 && !$config['ticket']) {
             $printer->_println("CLIENTE: ".$cliente['nombre']);
             $printer->_println("RUC: ".$cliente['ruc']);
             $printer->_println("DIRECCION: ".$cliente['direccion']);
         }
         $printer->feed();
-        $printer->_center(true);
-        $printer->_println($config["despedida"]);
-        $printer->_center(false);
-
+        if(!$config['ticket']){
+            $printer->_center(true);
+            $printer->_println($config["despedida"]);
+            $printer->_center(false);
+        }
 
 		$printer->_cutFull();
 		$printer->close();
@@ -232,7 +239,7 @@ class Imprimir {
         return $this->response;
     }
 
-    public function cierre($comprobantes, $productos, array $config = null){
+    public function cierre($comprobante, $pagos, $productos, array $config = null){
         $config = $config ? $config : $this->config;
         $printer = $this->printer;
         $cia = $this->cia;
@@ -246,13 +253,119 @@ class Imprimir {
         $printer->_println($cia["direccion"]);
         $printer->_println("TLF: ".$cia["telefono"]);
         $printer->_hr();
-        if ($config["cajero"]==0) {
-            $printer->_println("CIERRE TOTAL");
-        } else {
+        if ($config["cajero"]) {
             $printer->_println("CIERRE PARCIAL");
+        } else {
+            $printer->_println("CIERRE TOTAL");
         }
         $printer->_hr();
         $printer->_center(false);
+
+        $printer->_println("DIA TRABAJO       : ".$config["dia"]);
+        $printer->_println("FECHA IMPRESION   : ".Util::now());
+        if ($config["cajero"]) {
+            $printer->_println("CAJERO            : ".$config["cajero"]);
+        }
+
+        $printer->_println("FECHA INICIO      : ".$comprobante["firstDay"]);
+        $printer->_println("FECHA CIERRE      : ".$comprobante["lastDay"]);
+        //$printer->_println("TIPO DE CAMBIO    : ");
+        $printer->_hr();
+
+        $recargo = $config["igv"] + $config["servicio"];
+        $sTotal = $comprobante[Imprimir::FACTURA]["base"]+$comprobante[Imprimir::BOLETA]["base"];
+        $igv = $comprobante[Imprimir::FACTURA]["igv"]+$comprobante[Imprimir::BOLETA]["igv"];
+        $servicio = $comprobante[Imprimir::FACTURA]["servicio"]+$comprobante[Imprimir::BOLETA]["servicio"];
+        $total = $comprobante[Imprimir::FACTURA]["total"]+$comprobante[Imprimir::BOLETA]["total"];
+
+        $printer->_println("VALOR VENTA       : ".Util::right(number_format($sTotal, 2), 20));
+        $printer->_println("IGV(".$config["igv"]."%)          : ".Util::right(number_format($igv, 2), 20));
+        if ($servicio > 0) {
+            $printer->_println("SERVICIO(".$config["servicio"]."%)     : ".Util::right(number_format($servicio, 2), 20));
+        }
+        $printer->_hr();
+        $printer->_println("VENTAS REAL       : ".Util::right(number_format($total, 2), 20));
+        
+        $printer->_hr();
+        $printer->_center(true);
+        $printer->_println("REPORTE DE BOLETAS");
+        $printer->_center(false);
+        $printer->feed();
+        $printer->_println("No. TRANSACCIONES : ".$comprobante[Imprimir::BOLETA]["count"]);
+
+        $sTotal = $comprobante[Imprimir::BOLETA]["base"];
+        $igv = $comprobante[Imprimir::BOLETA]["igv"];
+        $servicio = $config["servicio"] > 0 ? $comprobante[Imprimir::BOLETA]["servicio"] : 0;
+        $printer->_println("VALOR VENTA       : ".Util::right(number_format($sTotal, 2), 20));
+        $printer->_println("IGV(".$config["igv"]."%)          : ".Util::right(number_format($comprobante[Imprimir::BOLETA]["igv"], 2), 20));
+        if ($config["servicio"] > 0) {
+            $printer->_println("SERVICIO(".$config["servicio"]."%)     : ".Util::right(number_format($comprobante[Imprimir::BOLETA]["servicio"], 2), 20));
+        }
+        $printer->_println("VENTAS REAL       : ".Util::right(number_format($comprobante[Imprimir::BOLETA]["total"], 2), 20));
+        $printer->_println("TICKET INICIAL    : ".$comprobante[Imprimir::BOLETA]["first"]);
+        $printer->_println("TICKET FINAL      : ".$comprobante[Imprimir::BOLETA]["last"]);
+        $printer->_println("No. ANULACIONES   : ".$comprobante[Imprimir::BOLETA]["anulados"]);
+
+        $printer->_hr();
+        $printer->_center(true);
+        $printer->_println("REPORTE DE FACTURAS");
+        $printer->_center(false);
+        $printer->feed();
+        $printer->_println("No. TRANSACCIONES : ".$comprobante[Imprimir::FACTURA]["count"]);
+
+        $sTotal = $comprobante[Imprimir::FACTURA]["base"];
+        $igv = $comprobante[Imprimir::FACTURA]["igv"];
+        $servicio = $config["servicio"] > 0 ? $comprobante[Imprimir::FACTURA]["servicio"] : 0;
+        $printer->_println("VALOR VENTA       : ".Util::right(number_format($sTotal, 2), 20));
+        $printer->_println("IGV(".$config["igv"]."%)          : ".Util::right(number_format($comprobante[Imprimir::FACTURA]["igv"], 2), 20));
+        if ($config["servicio"] > 0) {
+            $printer->_println("SERVICIO(".$config["servicio"]."%)     : ".Util::right(number_format($comprobante[Imprimir::FACTURA]["servicio"], 2), 20));
+        }
+        $printer->_println("VENTAS REAL       : ".Util::right(number_format($comprobante[Imprimir::FACTURA]["total"], 2), 20));
+        $printer->_println("TICKET INICIAL    : ".$comprobante[Imprimir::FACTURA]["first"]);
+        $printer->_println("TICKET FINAL      : ".$comprobante[Imprimir::FACTURA]["last"]);
+        $printer->_println("No. ANULACIONES   : ".$comprobante[Imprimir::FACTURA]["anulados"]);
+
+        $printer->_hr();
+        $printer->_center(true);
+        $printer->_println("REPORTE DE FORMAS DE PAGO");
+        $printer->_center(false);
+        $printer->feed();
+        $printer->_println("TIPO PAGO            MONTO");
+
+        $total = 0;
+        foreach ($pagos as $pago) {
+            $printer->_print(Util::left($pago['tipopago'], 17)." : ");
+            $printer->_println(Util::right(number_format($pago["valorpago"], 2), 10));
+            $total += $pago["valorpago"];
+        }
+        $printer->_hr();
+        $printer->_println("VENTAS TOTAL      : ".Util::right(number_format($total, 2), 10));
+
+        if ($config["cajero"]) {
+            $printer->feed();
+            $printer->_center(true);
+            $printer->_println("REPORTE DE PRODUCTOS");
+            $printer->_center(false);
+            $printer->feed();
+            $printer->_println("PRODUCTO            UNIT. CANT TOTAL S/.");
+            $printer->_hr();
+            $total = 0;
+            $t = 0;
+            foreach ($productos as $producto) {
+                $printer->_print(Util::left($producto["producto_name"], 17));
+                $printer->_print(Util::right(number_format($producto["precio"], 2), 9));
+                $printer->_print(Util::right($producto["cantidad"], 4));
+                $t = $producto["precio"]*$producto["cantidad"];
+                $printer->_println(Util::right(number_format($t, 2), 10));
+                $total += $t;
+            }
+            $printer->_hr();
+            $printer->_println("TOTAL POR PRODUCTOS : ".Util::right(number_format($total, 2), 18));
+        }
+        $printer->feed(3);
+        $printer->_println(" ---------------        --------------- ");
+        $printer->_println("  Administrador              Cajero     ");
 
         $printer->_cutFull();
         $printer->close();
@@ -260,7 +373,4 @@ class Imprimir {
     }
 
 }
-
-
-
 ?>

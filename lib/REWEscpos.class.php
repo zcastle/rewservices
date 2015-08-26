@@ -10,6 +10,9 @@ class REWEscpos extends Escpos {
 		}else{
 			if(filter_var($pathPrint, FILTER_VALIDATE_IP)){
 				$connector = new NetworkPrintConnector($pathPrint, 9100);
+			}elseif (substr($pathPrint, 0, 2)=='//') {
+				//$connector = new WindowsPrintConnector("smb://computername/Receipt Printer");
+				$connector = new WindowsPrintConnector("smb:$pathPrint");
 			}else{
 				$connector = new FilePrintConnector($pathPrint);
 			}

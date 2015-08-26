@@ -151,15 +151,16 @@ $app->group('/pedido', function () use ($app, $db, $result) {
         $nroatencion = $app->request->post('nroatencion');
         $cajaId = $app->request->post('caja_id');
         $cajeroId = $app->request->post('cajero_id');
+        $ticket = $app->request->post('ticket')=="true"?true:false;
         $rowsAtencion = $db->atenciones->where('nroatencion', $nroatencion)->and('caja_id', $cajaId);
-        //$atencion = $rowsAtencion->fetch();
         if($atencion= $rowsAtencion->fetch()) {
             $rowsAtencion->update(array(
                 'cajero_id' => $cajeroId
             ));
             $cajaId = $atencion['caja_id'];
-             //$atencion['tipo_documento_id'];
-            if($atencion['cliente_id']>0) {
+            if($ticket){
+                $tipoDocumentoId = 13;
+            }elseif($atencion['cliente_id']>0) {
                 $cliente = $db->cliente->where('id', $atencion['cliente_id'])->fetch();
                 $lenRuc =strlen($cliente['ruc']);
                 if($lenRuc==11) {
@@ -174,7 +175,11 @@ $app->group('/pedido', function () use ($app, $db, $result) {
             $serie = ''; $numero = '';
             $caja = $db->caja->where('id', $cajaId)->lock();
             $rowCaja = $caja->fetch();
-            if($tipoDocumentoId==2) { //FACTURA
+            if($tipoDocumentoId==13) { //TICKET
+                $serie = $rowCaja['serie_f'];
+                $numero = $rowCaja['numero_t'];
+                $cajaUpdate['numero_t'] = $numero+1;
+            } elseif($tipoDocumentoId==2) { //FACTURA
                 $serie = $rowCaja['serie_f'];
                 $numero = $rowCaja['numero_f'];
                 $cajaUpdate['numero_f'] = $numero+1;

@@ -48,8 +48,8 @@ $app->group('/imprimir', function () use ($app, $db) {
 		$app->response()->write(json_encode($response));
 	});
 
-	$app->get('/comprobante/:id', function($id) use ($app, $db) {
-
+	$app->get('/comprobante/:id/:ticket', function($id, $ticket) use ($app, $db) {
+		$ticket = $ticket=="true"?true:false;
 		$cabecera = $db->venta->where("id", $id);
 		$detalle = $db->venta_detalle->where("venta_id", $id);
 
@@ -70,7 +70,7 @@ $app->group('/imprimir', function () use ($app, $db) {
 			$registradora = $row['seriecaja'];
 			$autorizacion = $row['autorizacion'];
 			$servicio = $row->centrocosto["servicio"];
-			$impresora = $tipo==Imprimir::FACTURA ? $row['impresora_f'] : $row['impresora_b'];
+			$impresora = $ticket?$row['impresora_p']:$tipo==Imprimir::FACTURA?$row['impresora_f']:$row['impresora_b'];
 		}
 
 		$objCajero = $db->usuario->where("id", $venta["cajero_id"])->fetch();
@@ -87,20 +87,28 @@ $app->group('/imprimir', function () use ($app, $db) {
 			$cliente['direccion'] = $row['direccion'].'-'.$dep.'-'.$pro.'-'.$row->ubigeo['nombre'];
 		}
 
-		$imprimir = new Imprimir($impresora, $cia);
-		$response = $imprimir->comprobante($cliente, $detalle, array(
-			"cajero" => $cajero,
-			"despedida" => $despedida,
-			"registradora" => null,
-			"autorizacion" => null,
-			"factura" => $tipo==Imprimir::FACTURA ? true : false,
-			"registradora" => $registradora,
-			"autorizacion" => $autorizacion,
-			"serie" => $serie,
-			"numero" => $numero,
-			"igv" => $igv,
-			"servicio" => $servicio
-		));
+		try{
+			if($imprimir = new Imprimir($impresora, $cia)){
+				$response = $imprimir->comprobante($cliente, $detalle, array(
+					"ticket" => $ticket,
+					"cajero" => $cajero,
+					"despedida" => $despedida,
+					"registradora" => null,
+					"autorizacion" => null,
+					"factura" => $tipo==Imprimir::FACTURA ? true : false,
+					"registradora" => $registradora,
+					"autorizacion" => $autorizacion,
+					"serie" => $serie,
+					"numero" => $numero,
+					"igv" => $igv,
+					"servicio" => $servicio
+				));
+			}
+		}catch(Exception $e){
+			$response["data"]['success'] = false;
+			$response["data"]['error'] = true;
+			$response["data"]['message'] = Messages::ERR_PRINTING;
+		}
 
 		$app->response()->write(json_encode($response));
 	});
@@ -136,16 +144,23 @@ $app->group('/imprimir', function () use ($app, $db) {
 
 		$destinos = $db->destino;
 		foreach ($destinos as $row) {
-			$atencion = $db->atenciones->where("caja_id=? AND nroatencion=? AND enviado='S' AND producto.destino_id=?", array($cajaId, $nroAtencion, $row["id"]));
+			$atencion = $db->atenciones->where("caja_id=? AND nroatencion=? AND enviado='N' AND producto.destino_id=?", array($cajaId, $nroAtencion, $row["id"]));
 			if($atencion->fetch()){
-				$imprimir = new Imprimir($row["destino"]);
-				$response = $imprimir->pedido($atencion, $row["nombre"], array(
-					"mozo" => $mozo
-				));
-				if($response["data"]['success']){
-					foreach ($atencion as $row) {
-						$row->update(array("enviado" => "S"));
+				try{
+					if($imprimir = new Imprimir($row["destino"])){
+						$response = $imprimir->pedido($atencion, $row["nombre"], array(
+							"mozo" => $mozo
+						));
+						if($response["data"]['success']){
+							foreach ($atencion as $row) {
+								$row->update(array("enviado" => "S"));
+							}
+						}
 					}
+				}catch(Exception $e){
+					$response["data"]['success'] = false;
+					$response["data"]['error'] = true;
+					$response["data"]['message'] = Messages::ERR_PRINTING;
 				}
 			}
 		}
@@ -172,75 +187,103 @@ $app->group('/imprimir', function () use ($app, $db) {
 	});
 
 	$app->get('/cierre/:cajaId(/:cajeroId)', function($cajaId, $cajeroId=0) use ($app, $db) {
-		$caja = $db->caja->where("id", $cajaId)->fetch();
-		$dia = $caja["dia"];
-		$ventas = $db->venta->where("caja_id=? AND dia=?", array($cajaId, $dia));
-		if($cajeroId>0){
-			$ventas->where("cajero_id", $cajeroId);
-		}
-		if(COUNT($ventas)>0){
-			$igv = $db->impuesto->where("nombre","IGV")->fetch()["valor"];
-			$servicio = $caja->centrocosto["servicio"];
-			$cia = $caja->centrocosto->empresa;
-			$impresora = $cajeroId>0 ? $caja['impresora_x'] : $caja['impresora_z'];
-			$cajero = "";
-			$objCajero = $db->usuario->where("id", $cajeroId);
-			if($row=$objCajero->fetch()){
-				$cajero = $row["nombre"]." ".$row["apellido"];
-			}
-			$comprobante = [];
-			$objComprobante = $db->venta->select("DATE_FORMAT(fechahora, '%d-%m-%Y') AS fechahora")->where("caja_id=? AND dia=?", array($cajaId, $dia));
-			if($cajeroId>0){
-				$objComprobante->where("cajero_id", $cajeroId);
-			}
-			$firstDay = $objComprobante->fetch()["fechahora"];
-			$lastDay = "";
-			foreach ($objComprobante as $row) {
-				$lastDay = $row["fechahora"];
-			}
-			$comprobante["firstDay"] = $firstDay;
-			$comprobante["lastDay"] = $lastDay;
-			foreach (array(Imprimir::FACTURA, Imprimir::BOLETA) as $tipo) {
-				$objComprobante = $db->venta->select("serie, numero")->where("caja_id=? AND dia=? AND tipo_documento_id=?", array($cajaId, $dia, $tipo))->order("numero");
-				if($cajeroId>0){
-					$objComprobante->where("cajero_id", $cajeroId);
-				}
-				$count = count($objComprobante);
-				$first = $objComprobante->fetch()["numero"];
-				$serie = $objComprobante->fetch()["serie"];
-				$first = Util::right($serie, 3, "0")."-".Util::right($first, 7, "0");
-				$last = 0;
-				foreach ($objComprobante as $row) {
-					$last = $row["numero"];
-				}
-				$last = Util::right($serie, 3, "0")."-".Util::right($last, 7, "0");
-				$objComprobante = $db->venta->where("caja_id=? AND dia=? AND tipo_documento_id=? AND anulado_id>0", array($cajaId, $dia, $tipo));
-				if($cajeroId>0){
-					$objComprobante->where("cajero_id", $cajeroId);
-				}
-				$comprobante[$tipo] = array(
-					"count" => $count,
-					"first" => $first,
-					"last" => $last,
-					"anulado" => count($objComprobante)
-				);
-			}
-			$productos = $db->venta_detalle->select("producto_name, precio, SUM(cantidad) AS cantidad")->where("venta.caja_id=? AND venta.dia=?", array($cajaId, $dia))->group("producto_name, precio");
+		$response = [];
+		$response["data"] = array('success' => false, "error" => true, "message" => 'No hay ventas que procesar');
+
+		$atenciones = $db->atenciones->where("caja_id", $cajaId);
+		if($atenciones->fetch() && $cajeroId==0){
+			$response["data"]["message"] = Messages::WAR_Z;
+		}else{
+			$caja = $db->caja->where("id", $cajaId)->fetch();
+			$dia = $caja["dia"];
+			$ventas = $db->venta->where("caja_id=? AND dia=?", array($cajaId, $dia));
 			if($cajeroId>0){
 				$ventas->where("cajero_id", $cajeroId);
 			}
+			if(COUNT($ventas)>0){
+				$igv = $db->impuesto->where("nombre","IGV")->fetch()["valor"];
+				$servicio = $caja->centrocosto["servicio"];
+				$cia = $caja->centrocosto->empresa;
+				$impresora = $cajeroId>0 ? $caja['impresora_x'] : $caja['impresora_z'];
+				$cajero = "";
+				$objCajero = $db->usuario->where("id", $cajeroId);
+				if($row=$objCajero->fetch()){
+					$cajero = $row["nombre"]." ".$row["apellido"];
+				}
+				$comprobante = [];
+				$objComprobante = $db->venta->select("DATE_FORMAT(fechahora, '%d-%m-%Y') AS fechahora")->where("caja_id=? AND dia=?", array($cajaId, $dia));
+				if($cajeroId>0){
+					$objComprobante->where("cajero_id", $cajeroId);
+				}
+				$firstDay = $objComprobante->fetch()["fechahora"];
+				$lastDay = "";
+				foreach ($objComprobante as $row) {
+					$lastDay = $row["fechahora"];
+				}
+				$comprobante["firstDay"] = $firstDay;
+				$comprobante["lastDay"] = $lastDay;
+				foreach (array(Imprimir::FACTURA, Imprimir::BOLETA) as $tipo) {
+					$objComprobante = $db->venta->select("serie, numero, base, igv, servicio, total")->where("caja_id=? AND dia=? AND tipo_documento_id=? AND anulado_id=0", array($cajaId, $dia, $tipo))->order("numero");
+					if($cajeroId>0){
+						$objComprobante->where("cajero_id", $cajeroId);
+					}
+					$count = count($objComprobante);
+					$first = $objComprobante->fetch()["numero"];
+					$serie = $objComprobante->fetch()["serie"];
+					$first = Util::right($serie, 3, "0")."-".Util::right($first, 7, "0");
+					$last = 0;
+					$base = 0;
+					$mIgv = 0;
+					$mServicio = 0;
+					$total = 0;
+					foreach ($objComprobante as $row) {
+						$last = $row["numero"];
+						$base += $row["base"];
+						$mIgv += $row["igv"];
+						$mServicio += $row["servicio"];
+						$total += $row["total"];
+					}
+					$last = Util::right($serie, 3, "0")."-".Util::right($last, 7, "0");
+					$objComprobante = $db->venta->where("caja_id=? AND dia=? AND tipo_documento_id=? AND anulado_id>0", array($cajaId, $dia, $tipo));
+					if($cajeroId>0){
+						$objComprobante->where("cajero_id", $cajeroId);
+					}
+					$anulados = count($objComprobante);
+					//$objComprobante = $db->venta->select("serie, numero")->where("caja_id=? AND dia=? AND tipo_documento_id=? AND anulado_id=0", array($cajaId, $dia, $tipo))->order("numero");
+					$comprobante[$tipo] = array(
+						"count" => $count,
+						"first" => $first,
+						"last" => $last,
+						"anulados" => $anulados,
+						"base" => $base,
+						"igv" => $mIgv,
+						"servicio" => $mServicio,
+						"total" => $total
+					);
+				}
+				$productos = $db->venta_detalle->select("producto_name, precio, SUM(cantidad) AS cantidad")->where("venta.caja_id=? AND venta.dia=? AND venta.anulado_id=0", array($cajaId, $dia))->group("producto_name, precio");
+				if($cajeroId>0){
+					$productos->where("venta.cajero_id", $cajeroId);
+				}
 
-			$imprimir = new Imprimir($impresora, $cia);
-			$response = $imprimir->cierre($comprobante, $productos, array(
-				"igv" => $igv,
-				"servicio" => $servicio,
-				"dia" => $dia,
-				"cajero" => $cajero
-			));
-			if($response["data"]['success'] && $cajeroId==0){
-				
+				$pagos = $db->venta_pagos->select("tipopago, SUM(venta.total) AS valorpago")->where("venta.caja_id=? AND venta.dia=? AND venta.anulado_id=0", array($cajaId, $dia))->group("tipopago");
+				if($cajeroId>0){
+					$pagos->where("venta.cajero_id", $cajeroId);
+				}
+
+				$imprimir = new Imprimir($impresora, $cia);
+				$response = $imprimir->cierre($comprobante, $pagos, $productos, array(
+					"igv" => $igv,
+					"servicio" => $servicio,
+					"dia" => $dia,
+					"cajero" => $cajero
+				));
+				/*if($response["data"]['success'] && $cajeroId==0){
+					$newDay = $caja["dia"]+1;
+					$caja->update(array("dia"=>$newDay));
+				}*/
+
 			}
-
 		}
 		$app->response()->write(json_encode($response));
 	});
