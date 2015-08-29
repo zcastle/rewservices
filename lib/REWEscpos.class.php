@@ -17,28 +17,28 @@ class REWEscpos extends Escpos {
 				$connector = new FilePrintConnector($pathPrint);
 			}
 		}
-		Parent::__construct($connector);
-		Parent::setFont(REWEscpos::FONT_B);
+		Escpos::__construct($connector);
+		Escpos::setFont(REWEscpos::FONT_B);
 	}
 
 	public function _print($text){
-		Parent::text("$text");
+		Escpos::text("$text");
 	}
 
 	public function _println($text){
-		Parent::text("$text\n");
+		Escpos::text("$text\n");
 	}
 
 	public function _cutPartial(){
-		Parent::cut(Escpos::CUT_PARTIAL, 5);
+		Escpos::cut(Escpos::CUT_PARTIAL, 5);
 	}
 
 	public function _cutFull(){
-		Parent::cut();
+		Escpos::cut();
 	}
 
 	public function _center($center){
-		Parent::setJustification($center?Parent::JUSTIFY_CENTER:Parent::JUSTIFY_LEFT);
+		Escpos::setJustification($center?Escpos::JUSTIFY_CENTER:Escpos::JUSTIFY_LEFT);
 	}
 
 	public function _hr($len=40){

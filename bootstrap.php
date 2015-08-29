@@ -99,7 +99,7 @@ $app->options('/imprimir/cierre/:cajaId(/:cajeroId)', function() {});
 //$dsn = 'mysql:host=mibarrunto.no-ip.org;dbname=dbrewsoft2014;';
 $dsn = 'mysql:host=localhost;dbname=dbrewsoft2014;';
 //$username = 'u986138578_rew';
-$username = 'root';
+$username = 'sistemas';
 //$username = 'smart';
 //$password = 'gob2385++';
 $password = '123456';

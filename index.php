@@ -4,19 +4,15 @@ require "bootstrap.php";
 
 $recurso = $_SERVER['REQUEST_URI'];
 if(strlen($recurso)>1) {
-	$mod = explode("/",$recurso);
-	for ($i=0; $i < count($mod); $i++) { 
-		if($mod[$i]=='index.php'){
-			$mod = $mod[++$i];
-			break;
-		}
-	}
+	//print_r($recurso);
+	$mod = explode("/",$recurso)[2];
 	$contiene = strpos($mod, '?');
 	if($contiene===false){
 		$mod = $mod.'.php';
 	} else {
 		$mod = substr($mod, 0, $contiene).'.php';
 	}
+	//print_r($mod);
 	include_once $mod;
 }
 
@@ -34,8 +30,7 @@ foreach ($files as $file) {
 */
 
 $app->get('/', function() use ($app) {
-    //$app->response()->write('API');
-    $app->response()->write(substr(str_repeat(" ", 10)."10.00", 10*-1));
+    $app->response()->write('API');
 });
 
 $app->run();
