@@ -327,7 +327,7 @@ $app->group('/pedido', function () use ($app, $db, $result) {
         $app->get('/cc/:cajaId/:cajeroId', function($cajaId, $cajeroId) use($app, $db, $result) {
             $rowsAtencion = $db->atenciones('caja_id', $cajaId)->and('cajero_id', $cajeroId);
             $caja = $db->caja('id', $cajaId)->fetch();
-            $rowsVenta = $db->venta('dia', $caja['dia'])->and('caja_id', $cajaId)->and('cajero_id', $cajeroId);
+            $rowsVenta = $db->venta('dia', $caja['dia'])->and('caja_id', $cajaId); //->and('cajero_id', $cajeroId);
             if($rowsAtencion->fetch()){
                 array_push($result['data'], array(
                     'Atenciones' => $rowsAtencion->sum('cantidad * precio'),

@@ -63,16 +63,16 @@ class Imprimir {
             $printer->_println("TLF: ".$cia["telefono"]);
         }
         $printer->_center(false);
-        $printer->_println(str_repeat("-",40));
+        $printer->_hr();
 
         $printer->_println("FECHA : ".Util::now());
         $cabecera = $atencion->fetch();
         $printer->_println("MESA  : ".$cabecera["nroatencion"]." - PAX: ".$cabecera["pax"]);
         $printer->_println("CAJERO: ".$config["cajero"]);
         $printer->_println("MOZO  : ".$config["mozo"]);
-        $printer->_println(str_repeat("-",40));
+        $printer->_hr();
         $printer->_println("CANT PRODUCTO            UNIT. TOTAL S/.");
-        $printer->_println(str_repeat("-",40));
+        $printer->_hr();
         $total = 0.0;
 		foreach ($atencion as $row) {
 			$can = Util::left($row['cantidad'], 4);
@@ -82,7 +82,7 @@ class Imprimir {
 			$printer->_println("$can$pro$pre$tot");
 			$total += (double)$row['cantidad']*(double)$row['precio'];
 		}
-		$printer->_println(str_repeat("-",40));
+		$printer->_hr();
 		$printer->_println("TOTAL                 S/.     ".Util::right(number_format($total, 2), 10));
 
 		$printer->feed();
@@ -90,7 +90,7 @@ class Imprimir {
         $printer->feed();
         $printer->_println("RAZON SOCIAL:---------------------------");
         $printer->feed();
-        $printer->_println(str_repeat("-",40));
+        $printer->_hr();
         $printer->feed();
         $printer->_center(true);
         $printer->_println($config["despedida"]);
@@ -115,13 +115,15 @@ class Imprimir {
             $printer->_println($cia["direccion"]);
             $printer->_println("TLF: ".$cia["telefono"]);
         }
-        $printer->_println(str_repeat("-",40));
+        $printer->_hr();
         $sunat = null;
         if ($config["registradora"]) {
-            $sunat .= "Serie: ".$config["registradora"];
+            //$sunat .= "Serie: ".$config["registradora"];
+            $printer->_println("Serie: ".$config["registradora"]);
         }
         if ($config["autorizacion"]) {
-            $sunat .= " Autorizacion: ".$config["autorizacion"];
+            //$sunat = " Autorizacion: ".$config["autorizacion"];
+            $printer->_println("Autorizacion: ".$config["autorizacion"]);
         }
         if ($sunat && !$config['ticket']) {
             $printer->_println($sunat);
@@ -137,12 +139,13 @@ class Imprimir {
         $seq .= "V: ".Util::right($config["serie"], 3, "0")."-".Util::right($config["numero"], 7, "0");
         $printer->_println($seq);
         $printer->_center(false);
-        $printer->_println(str_repeat("-",40));
+        $printer->_hr();
         $printer->_println("FECHA : ".Util::now());
+        $printer->_println("MESA  : ".$config["nroatencion"]);
         $printer->_println("CAJERO: ".$config["cajero"]);
-        $printer->_println(str_repeat("-",40));
+        $printer->_hr();
         $printer->_println("CANT PRODUCTO            UNIT. TOTAL S/.");
-        $printer->_println(str_repeat("-",40));
+        $printer->_hr();
         $total = 0.0;
 		foreach ($detalle as $row) {
 			$can = Util::left($row['cantidad'], 4);
@@ -152,7 +155,7 @@ class Imprimir {
 			$printer->_println("$can$pro$pre$tot");
 			$total += (double)$row['cantidad']*(double)$row['precio'];
 		}
-		$printer->_println(str_repeat("-",40));
+		$printer->_hr();
 		if ($config["factura"] && !$config['ticket']){
 			$recargo = $config["igv"] + $config["servicio"];
             $sTotal = $total / (($recargo / 100) + 1);

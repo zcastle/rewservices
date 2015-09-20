@@ -60,6 +60,7 @@ $app->group('/imprimir', function () use ($app, $db) {
 		$venta = $cabecera->fetch();
 		$caja = $db->caja->where("id", $venta["caja_id"]);
 		$tipo = $venta['tipo_documento_id'];
+		$nroatencion = $venta['nroatencion'];
 		$serie = $venta['serie'];
 		$numero = $venta['numero'];
 		$servicio = 0;
@@ -101,7 +102,8 @@ $app->group('/imprimir', function () use ($app, $db) {
 					"serie" => $serie,
 					"numero" => $numero,
 					"igv" => $igv,
-					"servicio" => $servicio
+					"servicio" => $servicio,
+					"nroatencion" => $nroatencion
 				));
 			}
 		}catch(Exception $e){

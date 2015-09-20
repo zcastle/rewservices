@@ -122,7 +122,7 @@ $app->group('/producto', function () use ($app, $db, $result) {
         //    $nombre = substr($nombre, 2);
         //    $tb = $db->producto->where('codigo = ? AND eliminado=?', $nombre, 'N')->order("orden");
         //} else {
-            $tb = $db->producto->where('(nombre LIKE ? OR codigo = ?) AND eliminado=?', '%'.$nombre.'%', $nombre, 'N')->order("orden");
+            $tb = $db->producto->where('(nombre LIKE ? OR codigo LIKE ?) AND eliminado=?', '%'.$nombre.'%', '%'.$nombre.'%', 'N')->order("orden");
         //}
         
         foreach ($tb as $row) {

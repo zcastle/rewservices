@@ -114,7 +114,7 @@ $app->group('/reporte', function () use ($app, $db, $struct) {
         $app->get('/:dia_ini/:dia_fin(/:export)', function($dia_ini, $dia_fin, $export=false) use ($app, $db, $struct) {
             if ($dia_ini && $dia_fin) {
                 $data = $db->venta_detalle->select($struct['familias']['sql'])
-                ->where('venta.dia >= ? AND venta.dia <= ?', $dia_ini, $dia_fin)
+                ->where('venta.dia >= ? AND venta.dia <= ? AND venta.anulado_id=0', $dia_ini, $dia_fin)
                 ->group('producto.categoria.nombre, producto_name, venta_detalle.precio')
                 ->order('producto.categoria.nombre, producto_name');
                 mostrar($struct, 'familias', $data, $export, array('cia'=>'DOGIA','del'=>$dia_ini,'al'=>$dia_fin));
