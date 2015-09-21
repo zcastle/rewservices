@@ -35,9 +35,15 @@ $app->group('/caja', function () use ($app, $db, $result) {
 
 
 	$app->get('/cierre/:caja_id', function($caja_id) use ($app, $db, $result) {
-		$rows = $db->caja('id', $caja_id)->fetch();
+		/*$rows = $db->caja('id', $caja_id)->fetch();
 		$rows->update(array(
 			'dia' => $rows['dia']+1
+		));*/
+		$rowCC = $db->caja->select('centrocosto_id ')->where('id', $caja_id)->fetch();
+		$rows = $db->caja('centrocosto_id', $rowCC["centrocosto_id"]);
+		$diaActual = $rows->fetch()["dia"];
+		$rows->update(array(
+			'dia' => $diaActual+1
 		));
 
 	    $app->response()->write(json_encode($result));

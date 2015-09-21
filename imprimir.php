@@ -284,9 +284,80 @@ $app->group('/imprimir', function () use ($app, $db) {
 					$newDay = $caja["dia"]+1;
 					$caja->update(array("dia"=>$newDay));
 				}*/
-
 			}
 		}
+		$app->response()->write(json_encode($response));
+	});
+
+	$app->get('/anular/:id', function($id) use ($app, $db) {
+		$ticket = false; // $ticket=="true"?true:false;
+		$cabecera = $db->venta->select("DATE_FORMAT(fechahora, '%d-%m-%Y') AS fechahora, tipo_documento_id,
+										caja_id, nroatencion, serie, numero, cajero_id, cliente_id, anulado_message")->where("id", $id);
+		$detalle = $db->venta_detalle->where("venta_id", $id);
+
+		$cia = null;
+		$impresora = "LPT1"; //192.168.0.100
+		$anulado_message = "";
+
+		$venta = $cabecera->fetch();
+		$caja = $db->caja->where("id", $venta["caja_id"]);
+		$tipo = $venta['tipo_documento_id'];
+		$nroatencion = $venta['nroatencion'];
+		$serie = $venta['serie'];
+		$numero = $venta['numero'];
+		$fecha = $venta['fechahora'];
+		$anulado_message = $venta["anulado_message"];
+		$servicio = 0;
+		$igv = $db->impuesto->where("nombre","IGV")->fetch()["valor"];
+		if($row = $caja->fetch()){
+			$cia = $row->centrocosto->empresa;
+			
+			$registradora = $row['seriecaja'];
+			$autorizacion = $row['autorizacion'];
+			$servicio = $row->centrocosto["servicio"];
+			$impresora = $ticket?$row['impresora_p']:$tipo==Imprimir::FACTURA?$row['impresora_f']:$row['impresora_b'];
+		}
+
+		$objCajero = $db->usuario->where("id", $venta["cajero_id"])->fetch();
+		$cajero = $objCajero["nombre"]." ".$objCajero["apellido"];
+
+		$cliente = [];
+		$cliente['cliente_id'] = $venta["cliente_id"];
+		$objCliente = $db->cliente->where("id", $venta["cliente_id"]);
+		if($row=$objCliente->fetch()){
+			$cliente['nombre'] = $row['nombre'];
+			$cliente['ruc'] = $row['ruc'];
+			$dep = $db->ubigeo->where("co_departamento=? AND co_provincia=0 AND co_distrito=0", $row->ubigeo['co_departamento'])->fetch()['nombre'];
+			$pro = $db->ubigeo->where("co_departamento=? AND co_provincia=? AND co_distrito=0", array($row->ubigeo['co_departamento'], $row->ubigeo['co_provincia']))->fetch()['nombre'];
+			$cliente['direccion'] = $row['direccion'].'-'.$dep.'-'.$pro.'-'.$row->ubigeo['nombre'];
+		}
+
+		try{
+			if($imprimir = new Imprimir($impresora, $cia)){
+				$response = $imprimir->anular($cliente, $detalle, array(
+					"ticket" => $ticket,
+					"cajero" => $cajero,
+					"anulado_message" => $anulado_message,
+					"registradora" => null,
+					"autorizacion" => null,
+					"factura" => $tipo==Imprimir::FACTURA ? true : false,
+					"registradora" => $registradora,
+					"autorizacion" => $autorizacion,
+					"serie" => $serie,
+					"numero" => $numero,
+					"igv" => $igv,
+					"servicio" => $servicio,
+					"nroatencion" => $nroatencion,
+					"fecha" => $fecha
+				));
+			}
+		}catch(Exception $e){
+			$response["data"]['success'] = false;
+			$response["data"]['error'] = true;
+			$response["data"]['message'] = Messages::ERR_PRINTING;
+			//$response["data"]['message'] = $e->getMessage();
+		}
+
 		$app->response()->write(json_encode($response));
 	});
 

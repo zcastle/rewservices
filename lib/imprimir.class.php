@@ -118,11 +118,9 @@ class Imprimir {
         $printer->_hr();
         $sunat = null;
         if ($config["registradora"]) {
-            //$sunat .= "Serie: ".$config["registradora"];
             $printer->_println("Serie: ".$config["registradora"]);
         }
         if ($config["autorizacion"]) {
-            //$sunat = " Autorizacion: ".$config["autorizacion"];
             $printer->_println("Autorizacion: ".$config["autorizacion"]);
         }
         if ($sunat && !$config['ticket']) {
@@ -257,9 +255,9 @@ class Imprimir {
         $printer->_println("TLF: ".$cia["telefono"]);
         $printer->_hr();
         if ($config["cajero"]) {
-            $printer->_println("CIERRE PARCIAL");
+            $printer->_println("CIERRE X");
         } else {
-            $printer->_println("CIERRE TOTAL");
+            $printer->_println("CIERRE Z");
         }
         $printer->_hr();
         $printer->_center(false);
@@ -370,6 +368,90 @@ class Imprimir {
         $printer->_println(" ---------------        --------------- ");
         $printer->_println("  Administrador              Cajero     ");
 
+        $printer->_cutFull();
+        $printer->close();
+        return $this->response;
+    }
+
+    public function anular($cliente, $detalle, array $config = null){
+        $config = $config ? $config : $this->config;
+        $printer = $this->printer;
+        $cia = $this->cia;
+
+        $printer->_center(true);
+        $this->_println(str_repeat("*", 40));
+        $printer->_println("A N U L A C I O N");
+        $this->_println(str_repeat("*", 40));
+        $printer->feed();
+        if ($cia["nombre_comercial"]) {
+            $printer->_println($cia["nombre_comercial"]);
+        }
+        if(!$config['ticket']){
+            $printer->_println($cia["razon_social"]." - ".$cia["ruc"]);
+            $printer->_println($cia["direccion"]);
+            $printer->_println("TLF: ".$cia["telefono"]);
+        }
+        $printer->_hr();
+        $sunat = null;
+        /*if ($config["registradora"]) {
+            $printer->_println("Serie: ".$config["registradora"]);
+        }*/
+        if ($config["autorizacion"]) {
+            $printer->_println("Autorizacion: ".$config["autorizacion"]);
+        }
+        if ($sunat && !$config['ticket']) {
+            $printer->_println($sunat);
+        }
+        $seq = "TICKET ";
+        if ($config['ticket']) {
+            $seq .= "T";
+        } elseif ($config["factura"]) {
+            $seq .= "F";
+        } else {
+            $seq .= "B";
+        }
+        $seq .= "V: ".Util::right($config["serie"], 3, "0")."-".Util::right($config["numero"], 7, "0");
+        $printer->_println($seq);
+        $printer->_center(false);
+        $printer->_hr();
+        $printer->_println("FECHA EMISION  : ".$config["fecha"]);
+        $printer->_println("FECHA ANULACION: ".Util::now());
+        $printer->_println("MESA           : ".$config["nroatencion"]);
+        $printer->_println("CAJERO         : ".$config["cajero"]);
+        $printer->_hr();
+        $printer->_println("CANT PRODUCTO            UNIT. TOTAL S/.");
+        $printer->_hr();
+        $total = 0.0;
+        foreach ($detalle as $row) {
+            $can = Util::left($row['cantidad'], 4);
+            $pro = Util::left($row['producto_name'], 17);
+            $pre = Util::right(number_format($row['precio'], 2), 9);
+            $tot = Util::right(number_format($row['cantidad']*$row['precio'], 2), 10);
+            $printer->_println("$can$pro$pre$tot");
+            $total += (double)$row['cantidad']*(double)$row['precio'];
+        }
+        $printer->_hr();
+        if ($config["factura"] && !$config['ticket']){
+            $recargo = $config["igv"] + $config["servicio"];
+            $sTotal = $total / (($recargo / 100) + 1);
+            $igv = $sTotal * ($config["igv"] / 100);
+            $printer->_println("BASE                  S/.     ".Util::right(number_format($sTotal, 2), 10));
+            $printer->_println("IGV(".$config["igv"]."%)              S/.     ".Util::right(number_format($igv, 2), 10));
+            $servicio = $config["servicio"] > 0 ? $sTotal * ($config["servicio"] / 100) : 0;
+            if ($servicio > 0) {
+                $printer->_println("SERVICIO(".$config["servicio"]."%)         S/.     ".Util::right(number_format($servicio, 2), 10));
+            }
+        }
+        $printer->_println("TOTAL                 S/.     ".Util::right(number_format($total, 2), 10));
+        $printer->feed();
+        if ($cliente['cliente_id'] > 0 && !$config['ticket']) {
+            $printer->_println("CLIENTE: ".$cliente['nombre']);
+            $printer->_println("RUC: ".$cliente['ruc']);
+            $printer->_println("DIRECCION: ".$cliente['direccion']);
+        }
+        $printer->feed();
+        $printer->_println("OBSERVACION:");    
+        $printer->_println($config["anulado_message"]);
         $printer->_cutFull();
         $printer->close();
         return $this->response;

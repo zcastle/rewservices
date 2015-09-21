@@ -5,6 +5,7 @@ require_once('vendor/mike42/escpos-php/Escpos.php');
 class REWEscpos extends Escpos {
 
 	function __construct($pathPrint) {
+		//$printer->close();
 		if($pathPrint=="LPT1"){
 			$connector = new WindowsPrintConnector("LPT1");
 		}else{
@@ -17,6 +18,7 @@ class REWEscpos extends Escpos {
 				$connector = new FilePrintConnector($pathPrint);
 			}
 		}
+		//$connector = new FilePrintConnector("/var/www/html/anulacion");
 		Escpos::__construct($connector);
 		Escpos::setFont(REWEscpos::FONT_B);
 	}

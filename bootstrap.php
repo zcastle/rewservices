@@ -84,8 +84,9 @@ $app->options('/usuario/:id', function(){});
 $app->options('/usuario/tablet', function(){});
 $app->options('/venta/dias', function(){});
 $app->options('/venta/anio/cia/:cia', function(){});
-$app->options('/venta/anular/:caja_id', function(){});
-$app->options('/venta/anular/:caja_id/:cajero_id', function(){});
+//$app->options('/venta/anular/:caja_id(/:numero)', function(){});
+$app->options('/venta/anular/:caja_id(/:cajero_id(/:numero))', function(){});
+$app->options('/venta/anular_documento', function(){});
 $app->options('/reporte/ventas/dias/:dia_ini/:dia_fin/:export', function() {});
 
 $app->options('/imprimir/precuenta/:cajaId/:nroAtencion', function() {});
@@ -93,6 +94,7 @@ $app->options('/imprimir/comprobante/:id/:ticket', function() {});
 $app->options('/imprimir/pedido/liberar/:id', function() {});
 $app->options('/imprimir/pedido/:cajaId/:nroAtencion', function() {});
 $app->options('/imprimir/cierre/:cajaId(/:cajeroId)', function() {});
+$app->options('/imprimir/anular/:id', function() {});
 
 //$dsn = 'mysql:host=10.10.10.20;dbname=dbrewsoft15;';
 //$dsn = 'mysql:host=mysql.hostinger.es;dbname=u986138578_rew;';
