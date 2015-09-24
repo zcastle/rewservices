@@ -86,7 +86,7 @@ $app->options('/venta/dias', function(){});
 $app->options('/venta/anio/cia/:cia', function(){});
 //$app->options('/venta/anular/:caja_id(/:numero)', function(){});
 $app->options('/venta/anular/:caja_id(/:cajero_id(/:numero))', function(){});
-$app->options('/venta/anular_documento', function(){});
+$app->options('/venta/anular', function(){});
 $app->options('/reporte/ventas/dias/:dia_ini/:dia_fin/:export', function() {});
 
 $app->options('/imprimir/precuenta/:cajaId/:nroAtencion', function() {});

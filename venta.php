@@ -52,7 +52,7 @@ $app->group('/venta', function () use ($app, $db, $result) {
         $app->response()->write(json_encode(getResult($rows, $result, $db)));
     });
 
-    $app->post('/anular_documento', function() use ($app, $db, $result) {
+    $app->post('/anular', function() use ($app, $db, $result) {
         $venta_id = $app->request->post('venta_id');
         $anulado_id = $app->request->post('anulado_id');
         $anulado_message = $app->request->post('anulado_message');
