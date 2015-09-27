@@ -88,7 +88,7 @@ $app->group('/venta', function () use ($app, $db, $result) {
     });
 
     $app->get('/anio/cia/:cia', function($cia) use ($app, $db, $result) {
-        $rowsCC = $db->centrocosto->select('id, nombre');
+        $rowsCC = $db->centrocosto->select('id, nombre')->where("visible", "S");
         foreach ($rowsCC as $row) {
             $caja = $db->caja('centrocosto_id', $row['id'])->and('tipo', 'C')->fetch();
             $meses = array("enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre");
@@ -107,9 +107,11 @@ $app->group('/venta', function () use ($app, $db, $result) {
             while(date("w",$ultimo_dia)!=0){
                 $ultimo_dia += 3600;
             }
-            $fechauno = new DateTime(date("Y-m-d",$primer_dia));
-            for ($i=1; $i<=7; $i++) {
-                $rowsVenta = $db->venta('caja_id', $caja['id'])->and('DATE(fechahora)', $fechauno->format('Y-m-d'));
+            $fechauno = new DateTime(date("Y-m-d", $primer_dia));
+            $diaHoy = date("w")-1;
+            for ($i=1; $i<=$diaHoy; $i++) {
+                $dia = $db->venta->select("dia")->where("DATE_FORMAT(fechahora, '%Y-%m-%d')", $fechauno->format('Y-m-d'))->group("dia")->fetch()['dia'];
+                $rowsVenta = $db->venta('caja_id', $caja['id'])->and('dia', $dia)->and('anulado_id', 0);
                 $venta = 0;
                 if($rowsVenta->fetch()){
                     $venta = $rowsVenta->sum('total');
@@ -118,7 +120,7 @@ $app->group('/venta', function () use ($app, $db, $result) {
                 $fechauno->add(new DateInterval('P1D'));
             }
             
-            //echo "Primer día ".date("D Y-m-d",$primer_dia)."<br>";
+            //echo "Primer día ".date("D Y-m-d", $primer_dia)."<br>";
             //echo "Hoy ".date("D Y-m-d",mktime())."<br>";
             //echo "Ultimo día ".date("D Y-m-d",$ultimo_dia)."<br>";
             

@@ -42,6 +42,8 @@ class Reporte {
 	            	} else {
 		                if ($d['n']) {
 		                    $pdf->Cell($d['w'], 0, number_format($row[$d['f']], 2), 0, 0, 'R');
+		                }else if ($d['c']>0) {
+		                	$pdf->Cell($d['w'], 0, substr($row[$d['f']], 0, $d['c']));
 		                } else {
 		                    $pdf->Cell($d['w'], 0, $row[$d['f']]);
 		                }
@@ -115,10 +117,6 @@ class Reporte {
 	            }
 	            $fila+=1;
 	        }
-	        /*$ActiveSheet
-	           ->getStyle('A6')
-	           ->getNumberFormat()
-	           ->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME3);*/
 
 	        $ActiveSheet->setTitle($this->struct['cabecera']['titulo']);
 

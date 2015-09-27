@@ -306,14 +306,20 @@ $app->group('/pedido', function () use ($app, $db, $result) {
     $app->group('/resumen', function () use ($app, $db, $result) {
 
         $app->get('/cia/:cia', function($cia) use($app, $db, $result) {
-            $rowsCC = $db->centrocosto->select('id, nombre');
-            //$result['datases'] = 'algo';
+            $rowsCC = $db->centrocosto->select('id, nombre')->where("visible", "S");
             foreach ($rowsCC as $row) {
-                $caja = $db->caja('centrocosto_id', $row['id'])->and('tipo', 'C')->fetch();
-                $rowsAtencion = $db->atenciones('caja_id', $caja['id']);
+                //$caja = $db->caja('centrocosto_id', $row['id'])->and('tipo', 'C')->fetch();
+                $caja = $db->caja->select("dia")->where('centrocosto_id', $row['id'])->and('tipo', 'C')->fetch();
+                //die($caja['dia']);
+                /*$rowsAtencion = $db->atenciones->where('caja.centrocosto_id', $row['id']);
                 $pedido = 0;
                 if($rowsAtencion->fetch()) {
                     $pedido = $rowsAtencion->sum('cantidad * precio');
+                }*/
+                $rowsVentas = $db->venta->select("total")->where("dia", $caja['dia'])->and("anulado_id", 0);
+                $pedido = 0;
+                if($rowsVentas->fetch()) {
+                    $pedido = $rowsVentas->sum('total');
                 }
                 array_push($result['data'], array(
                     'id' => $row['id'],
@@ -324,19 +330,42 @@ $app->group('/pedido', function () use ($app, $db, $result) {
             $app->response()->write(json_encode($result));
         });
 
+        $app->get('/demo', function() use($app, $db, $result) {
+            $cc = $db->caja->select("centrocosto_id")->where("id", 2)->fetch()["centrocosto_id"];
+            echo $cc;
+            /*$rowsAtencion = $db->atenciones
+                            ->select("'Atenciones:' AS usuario, SUM(cantidad*precio) AS total")
+                            ->where('caja.centrocosto_id=?', $cc)
+                            ->group("cajero_id");*/
+            //echo $rowsAtencion;
+        });
+
         $app->get('/cc/:cajaId/:cajeroId', function($cajaId, $cajeroId) use($app, $db, $result) {
-            $rowsAtencion = $db->atenciones('caja_id', $cajaId)->and('cajero_id', $cajeroId);
+            $cc = $db->caja->select("centrocosto_id")->where("id", $cajaId)->fetch()["centrocosto_id"];
+            $rowsAtencion = $db->atenciones->where('caja.centrocosto_id=?', $cc);
             $caja = $db->caja('id', $cajaId)->fetch();
-            $rowsVenta = $db->venta('dia', $caja['dia'])->and('caja_id', $cajaId); //->and('cajero_id', $cajeroId);
+
+            $rowsVenta = $db->venta->select("cajero_id, SUM(total) AS total")
+                        ->where('dia', $caja['dia'])->and('caja_id', $cajaId)->and("anulado_id", 0)
+                        ->group("cajero_id")->order("fechahora");
+
+            foreach ($rowsVenta as $venta){
+                $cajero = $db->usuario->select("nombre, apellido")->where('id', $venta["cajero_id"])->fetch();
+                array_push($result['data'], array(
+                    'usuario' => $cajero["nombre"].' '.$cajero["apellido"],
+                    'total' => $venta['total']
+                ));
+            }
+
             if($rowsAtencion->fetch()){
                 array_push($result['data'], array(
-                    'Atenciones' => $rowsAtencion->sum('cantidad * precio'),
-                    'Ventas' => $rowsVenta->sum('total')
+                    'usuario' => "PEDIDOS ABIERTOS",
+                    'total' => $rowsAtencion->sum('cantidad * precio')
                 ));
-            } else {
+            }else{
                 array_push($result['data'], array(
-                    'Atenciones' => 0,
-                    'Ventas' => $rowsVenta->sum('total')==null?0:$rowsVenta->sum('total')
+                    'usuario' => "PEDIDOS ABIERTOS",
+                    'total' => 0
                 ));
             }
             $app->response()->write(json_encode($result));

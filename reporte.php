@@ -11,20 +11,20 @@ $struct = array(
         'al' => null
     ),
     'ventas' => array(
-        'sql' => "DATE_FORMAT(fechahora, '%d/%m/%Y') AS fecha,
+        'sql' => "DATE_FORMAT(fechahora, '%d/%m/%Y %h:%i %p') AS fecha,
                     CONCAT(IF(tipo_documento_id=2,'FV','BV'),'-',MID(CONCAT('000',serie),-3),'-',MID(CONCAT('0000000',numero),-7)) AS documento,
                     cliente.ruc, cliente.nombre, IF(anulado_id>0,0,base) AS base, IF(anulado_id>0,0,igv) AS igv, 
                     IF(anulado_id>0,0,servicio) AS servicio, IF(anulado_id>0,0,total) AS total, IF(anulado_id>0,'S', '') AS anulado",
         'detalle' => array(
-            array('w' => 22, 'f' => 'fecha', 't' => 'FECHA', 'n' => false),
-            array('w' => 29, 'f' => 'documento', 't' => 'DOCUMENTO', 'n' => false),
-            array('w' => 23, 'f' => 'ruc', 't' => 'RUC', 'n' => false),
-            array('w' => 55, 'f' => 'nombre', 't' => 'CLIENTE', 'n' => false),
-            array('w' => 20, 'f' => 'base', 't' => 'NETO', 'n' => true),
-            array('w' => 15, 'f' => 'igv', 't' => 'IGV', 'n' => true),
-            array('w' => 15, 'f' => 'servicio', 't' => 'SERV.', 'n' => true),
-            array('w' => 20, 'f' => 'total', 't' => 'TOTAL', 'n' => true),
-            array('w' => 6, 'f' => 'anulado', 't' => ' A', 'n' => false)
+            array('w' => 39, 'f' => 'fecha', 't' => 'FECHA', 'n' => false, 'c' => 0),
+            array('w' => 29, 'f' => 'documento', 't' => 'DOCUMENTO', 'n' => false, 'c' => 0),
+            array('w' => 23, 'f' => 'ruc', 't' => 'RUC', 'n' => false, 'c' => 0),
+            array('w' => 37, 'f' => 'nombre', 't' => 'CLIENTE', 'n' => false, 'c' => 20),
+            array('w' => 20, 'f' => 'base', 't' => 'NETO', 'n' => true, 'c' => 0),
+            array('w' => 15, 'f' => 'igv', 't' => 'IGV', 'n' => true, 'c' => 0),
+            array('w' => 15, 'f' => 'servicio', 't' => 'SERV.', 'n' => true, 'c' => 0),
+            array('w' => 20, 'f' => 'total', 't' => 'TOTAL', 'n' => true, 'c' => 0),
+            array('w' => 6, 'f' => 'anulado', 't' => ' A', 'n' => false, 'c' => 0)
         ),
         'grupo' => null,
         'total' => array(
@@ -36,11 +36,11 @@ $struct = array(
         'sql' => "producto.categoria.nombre AS categoria_name, producto_name, 
                 SUM(cantidad) AS cantidad, venta_detalle.precio, (SUM(cantidad) * venta_detalle.precio) AS total",
         'detalle' => array(
-            array('w' => 50, 'f' => 'categoria_name', 't' => 'CATEGORIA', 'n' => false),
-            array('w' => 95, 'f' => 'producto_name', 't' => 'PRODUCTO', 'n' => false),
-            array('w' => 15, 'f' => 'cantidad', 't' => 'CANTIDAD', 'n' => true),
-            array('w' => 20, 'f' => 'precio', 't' => 'PRECIO', 'n' => true),
-            array('w' => 20, 'f' => 'total', 't' => 'TOTAL', 'n' => true)
+            array('w' => 50, 'f' => 'categoria_name', 't' => 'CATEGORIA', 'n' => false, 'c' => 0),
+            array('w' => 95, 'f' => 'producto_name', 't' => 'PRODUCTO', 'n' => false, 'c' => 0),
+            array('w' => 15, 'f' => 'cantidad', 't' => 'CANTIDAD', 'n' => true, 'c' => 0),
+            array('w' => 20, 'f' => 'precio', 't' => 'PRECIO', 'n' => true, 'c' => 0),
+            array('w' => 20, 'f' => 'total', 't' => 'TOTAL', 'n' => true, 'c' => 0)
         ),
         'grupo' => 'categoria_name',
         'total' => array(
@@ -146,10 +146,7 @@ $app->group('/reporte', function () use ($app, $db, $struct) {
                 error($app, 'DEBE INGRESAR LAS FECHAS DE TRABAJO');
             }
         });
-
     });
-
 });
-
 
 ?>

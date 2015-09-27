@@ -9,18 +9,6 @@ $app->group('/caja', function () use ($app, $db, $result) {
 	    $app->response()->write(json_encode($result));
 	});
 
-	/*$app->get('/:cc_id', function($cc_id) use ($app, $db, $result) {
-		$rows = $db->caja->where('centrocosto_id', $cc_id)->and('tipo', 'C');
-		if ($row=$rows->fetch()) {
-			$row['centrocosto_name'] = utf8_encode($row->centrocosto['nombre']);
-			$row['empresa_name'] = utf8_encode($row->centrocosto->empresa['nombre_comercial']);
-			array_push($result['data'], $row);
-		} else {
-			$result['success'] = false;
-		}
-	    $app->response()->write(json_encode($result));
-	});*/
-
 	$app->get('/:id', function($id) use ($app, $db, $result) {
 		$rows = $db->caja->select('id, nombre, tipo, centrocosto_id ')->where('id', $id);
 		if ($row=$rows->fetch()) {
@@ -33,19 +21,13 @@ $app->group('/caja', function () use ($app, $db, $result) {
 	    $app->response()->write(json_encode($result));
 	});
 
-
 	$app->get('/cierre/:caja_id', function($caja_id) use ($app, $db, $result) {
-		/*$rows = $db->caja('id', $caja_id)->fetch();
-		$rows->update(array(
-			'dia' => $rows['dia']+1
-		));*/
 		$rowCC = $db->caja->select('centrocosto_id ')->where('id', $caja_id)->fetch();
 		$rows = $db->caja('centrocosto_id', $rowCC["centrocosto_id"]);
 		$diaActual = $rows->fetch()["dia"];
 		$rows->update(array(
 			'dia' => $diaActual+1
 		));
-
 	    $app->response()->write(json_encode($result));
 	});
 
