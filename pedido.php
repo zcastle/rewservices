@@ -154,9 +154,9 @@ $app->group('/pedido', function () use ($app, $db, $result) {
         $ticket = $app->request->post('ticket')=="true"?true:false;
         $rowsAtencion = $db->atenciones->where('nroatencion', $nroatencion)->and('caja_id', $cajaId);
         if($atencion= $rowsAtencion->fetch()) {
-            $rowsAtencion->update(array(
+            /*$rowsAtencion->update(array(
                 'cajero_id' => $cajeroId
-            ));
+            ));*/
             $cajaId = $atencion['caja_id'];
             if($ticket){
                 $tipoDocumentoId = 13;
@@ -203,9 +203,10 @@ $app->group('/pedido', function () use ($app, $db, $result) {
                 'dscto' => 0,
                 'pax' => $atencion['pax'],
                 'mozo_id' => $atencion['mozo_id'],
-                'cajero_id' => $atencion['cajero_id'],
+                'cajero_id' => $cajeroId,
                 'nroatencion' => $atencion['nroatencion']
             ));
+             //$atencion['cajero_id'],
             $total = 0.0;
             foreach ($rowsAtencion as $row) {
                 $db->venta_detalle->insert(array(
