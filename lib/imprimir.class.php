@@ -379,9 +379,9 @@ class Imprimir {
         $cia = $this->cia;
 
         $printer->_center(true);
-        $this->_println(str_repeat("*", 40));
+        $printer->_println(str_repeat("*", 40));
         $printer->_println("A N U L A C I O N");
-        $this->_println(str_repeat("*", 40));
+        $printer->_println(str_repeat("*", 40));
         $printer->feed();
         if ($cia["nombre_comercial"]) {
             $printer->_println($cia["nombre_comercial"]);
@@ -456,6 +456,5 @@ class Imprimir {
         $printer->close();
         return $this->response;
     }
-
 }
 ?>
