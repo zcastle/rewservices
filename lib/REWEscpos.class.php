@@ -4,21 +4,25 @@ require_once('vendor/mike42/escpos-php/Escpos.php');
 
 class REWEscpos extends Escpos {
 
+	const DEBUG = false;
+
 	function __construct($pathPrint) {
-		//$printer->close();
-		if($pathPrint=="LPT1"){
-			$connector = new WindowsPrintConnector("LPT1");
+		if(REWEscpos::DEBUG){
+			$connector = new FilePrintConnector("/var/www/html/ticket");
 		}else{
-			if(filter_var($pathPrint, FILTER_VALIDATE_IP)){
-				$connector = new NetworkPrintConnector($pathPrint, 9100);
-			}elseif (substr($pathPrint, 0, 2)=='//') {
-				//$connector = new WindowsPrintConnector("smb://computername/Receipt Printer");
-				$connector = new WindowsPrintConnector("smb:$pathPrint");
+			if($pathPrint=="LPT1"){
+				$connector = new WindowsPrintConnector("LPT1");
 			}else{
-				$connector = new FilePrintConnector($pathPrint);
+				if(filter_var($pathPrint, FILTER_VALIDATE_IP)){
+					$connector = new NetworkPrintConnector($pathPrint, 9100);
+				}elseif (substr($pathPrint, 0, 2)=='//') {
+					//$connector = new WindowsPrintConnector("smb://computername/Receipt Printer");
+					$connector = new WindowsPrintConnector("smb:$pathPrint");
+				}else{
+					$connector = new FilePrintConnector($pathPrint);
+				}
 			}
 		}
-		//$connector = new FilePrintConnector("/var/www/html/anulacion");
 		Escpos::__construct($connector);
 		Escpos::setFont(REWEscpos::FONT_B);
 	}

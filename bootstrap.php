@@ -4,6 +4,7 @@ $DEBUG = true;
 
 require 'vendor/autoload.php';
 require 'lib/messages.class.php';
+require 'lib/common.class.php';
 
 $app = new \Slim\Slim();
 $app->config(array(
@@ -94,6 +95,7 @@ $app->options('/imprimir/comprobante/:id/:ticket', function() {});
 $app->options('/imprimir/pedido/liberar/:id', function() {});
 $app->options('/imprimir/pedido/:cajaId/:nroAtencion', function() {});
 $app->options('/imprimir/cierre/:cajaId(/:cajeroId)', function() {});
+$app->options('/imprimir/cierre_pre/:cajaId', function() {});
 $app->options('/imprimir/anular/:id', function() {});
 
 //$dsn = 'mysql:host=10.10.10.20;dbname=dbrewsoft15;';

@@ -456,5 +456,27 @@ class Imprimir {
         $printer->close();
         return $this->response;
     }
+
+    public function pre($result){
+        $printer = $this->printer;
+
+        $printer->_center(true);
+        $printer->_println("RESUMEN DE VENTAS");
+        $printer->_center(false);
+        $printer->feed();
+        $total = 0.0;
+        foreach ($result as $row) {
+            $printer->_print(Util::left($row["usuario"], 31));
+            $printer->_println(Util::right(number_format($row['total'], 2), 9));
+            $total += $row['total'];
+        }
+        $printer->_println(str_repeat("-", 40));
+        $printer->_print(Util::left("TOTAL", 25));
+        $printer->_println(Util::right(number_format($total, 2), 15));
+
+        $printer->_cutFull();
+        $printer->close();
+        return $this->response;
+    }
 }
 ?>

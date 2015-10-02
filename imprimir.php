@@ -2,7 +2,7 @@
 
 require_once('lib/imprimir.class.php');
 
-$app->group('/imprimir', function () use ($app, $db) {
+$app->group('/imprimir', function () use ($app, $db, $result) {
 
 	$app->get('/', function() use ($app, $db) {
 		$almacen = $db->almacen;
@@ -187,6 +187,16 @@ $app->group('/imprimir', function () use ($app, $db) {
 
 		$app->response()->write(json_encode($response));
 	});
+	$app->get('/cierre_pre/:cajaId', function($cajaId) use ($app, $db, $result) {
+		$common = new Common($db, $result);
+        $result = $common->getResumen($cajaId);
+
+        $caja = $db->caja->where("id", $cajaId)->fetch();
+        $impresora = $caja['impresora_x'];
+        $imprimir = new Imprimir($impresora);
+		$response = $imprimir->pre($result['data']);
+        $app->response()->write(json_encode($response));
+	});
 
 	$app->get('/cierre/:cajaId(/:cajeroId)', function($cajaId, $cajeroId=0) use ($app, $db) {
 		$response = [];
@@ -357,7 +367,6 @@ $app->group('/imprimir', function () use ($app, $db) {
 			$response["data"]['message'] = Messages::ERR_PRINTING;
 			//$response["data"]['message'] = $e->getMessage();
 		}
-
 		$app->response()->write(json_encode($response));
 	});
 
