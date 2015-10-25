@@ -12,6 +12,8 @@ $app->group('/cliente', function () use ($app, $db, $result) {
 	$app->get('/:id', function($id) use ($app, $db, $result) {
 		$rows = $db->cliente->where('id', $id);
 		if ($row=$rows->fetch()) {
+			$ubigeo = $db->ubigeo->where('id', $row['ubigeo_id'])->fetch();
+			$row['ubigeo_name'] = $ubigeo['nombre'];
 			array_push($result['data'], $row);
 		} else {
 			$result['success'] = false;

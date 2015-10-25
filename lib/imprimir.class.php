@@ -166,6 +166,11 @@ class Imprimir {
             }
 		}
 		$printer->_println("TOTAL                 S/.     ".Util::right(number_format($total, 2), 10));
+        if ($config["dscto"]>0){
+            $printer->_println("DSCTO                 S/.     ".Util::right(number_format($config["dscto"], 2), 10));            
+            $printer->_println("TOTAL con DSCTO       S/.     ".Util::right(number_format($total-$config["dscto"], 2), 10));            
+        }
+
 		$printer->feed();
 		if ($cliente['cliente_id'] > 0 && !$config['ticket']) {
             $printer->_println("CLIENTE: ".$cliente['nombre']);

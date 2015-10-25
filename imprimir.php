@@ -63,6 +63,7 @@ $app->group('/imprimir', function () use ($app, $db, $result) {
 		$nroatencion = $venta['nroatencion'];
 		$serie = $venta['serie'];
 		$numero = $venta['numero'];
+		$dscto = $venta['dscto'];
 		$servicio = 0;
 		$igv = $db->impuesto->where("nombre","IGV")->fetch()["valor"];
 		if($row = $caja->fetch()){
@@ -103,7 +104,8 @@ $app->group('/imprimir', function () use ($app, $db, $result) {
 					"numero" => $numero,
 					"igv" => $igv,
 					"servicio" => $servicio,
-					"nroatencion" => $nroatencion
+					"nroatencion" => $nroatencion,
+					"dscto"=> $dscto
 				));
 			}
 		}catch(Exception $e){
