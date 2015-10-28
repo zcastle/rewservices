@@ -34,6 +34,8 @@ $app->group('/cliente', function () use ($app, $db, $result) {
 	$app->get('/buscar/:nombre', function($nombre) use ($app, $db, $result) {
 		$rows = $db->cliente->where('ruc = ? OR nombre LIKE ?', $nombre, '%'.$nombre.'%');
 		foreach ($rows as $row) {
+			$ubigeo = $db->ubigeo->where('id', $row['ubigeo_id'])->fetch();
+			$row['ubigeo_name'] = $ubigeo['nombre'];
 			array_push($result['data'], $row);
 		}
 	    $app->response()->write(json_encode($result));
