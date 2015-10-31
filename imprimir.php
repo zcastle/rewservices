@@ -63,7 +63,8 @@ $app->group('/imprimir', function () use ($app, $db, $result) {
 		$nroatencion = $venta['nroatencion'];
 		$serie = $venta['serie'];
 		$numero = $venta['numero'];
-		$dscto = $venta['dscto'];
+		$dscto_m = $venta['dscto_m'];
+		$dscto_p = $venta['dscto_p'];
 		$servicio = 0;
 		$igv = $db->impuesto->where("nombre","IGV")->fetch()["valor"];
 		if($row = $caja->fetch()){
@@ -105,7 +106,7 @@ $app->group('/imprimir', function () use ($app, $db, $result) {
 					"igv" => $igv,
 					"servicio" => $servicio,
 					"nroatencion" => $nroatencion,
-					"dscto"=> $dscto
+					"dscto_m"=> $dscto_m
 				));
 			}
 		}catch(Exception $e){
@@ -237,7 +238,7 @@ $app->group('/imprimir', function () use ($app, $db, $result) {
 				$comprobante["firstDay"] = $firstDay;
 				$comprobante["lastDay"] = $lastDay;
 				foreach (array(Imprimir::FACTURA, Imprimir::BOLETA) as $tipo) {
-					$objComprobante = $db->venta->select("serie, numero, base, igv, servicio, total")->where("caja_id=? AND dia=? AND tipo_documento_id=? AND anulado_id=0", array($cajaId, $dia, $tipo))->order("numero");
+					$objComprobante = $db->venta->select("serie, numero, base, igv, servicio, total, dscto_m")->where("caja_id=? AND dia=? AND tipo_documento_id=? AND anulado_id=0", array($cajaId, $dia, $tipo))->order("numero");
 					if($cajeroId>0){
 						$objComprobante->where("cajero_id", $cajeroId);
 					}
@@ -250,12 +251,14 @@ $app->group('/imprimir', function () use ($app, $db, $result) {
 					$mIgv = 0;
 					$mServicio = 0;
 					$total = 0;
+					$dscto_m = 0;
 					foreach ($objComprobante as $row) {
 						$last = $row["numero"];
 						$base += $row["base"];
 						$mIgv += $row["igv"];
 						$mServicio += $row["servicio"];
 						$total += $row["total"];
+						$dscto_m += $row["dscto_m"];
 					}
 					$last = Util::right($serie, 3, "0")."-".Util::right($last, 7, "0");
 					$objComprobante = $db->venta->where("caja_id=? AND dia=? AND tipo_documento_id=? AND anulado_id>0", array($cajaId, $dia, $tipo));
@@ -272,7 +275,8 @@ $app->group('/imprimir', function () use ($app, $db, $result) {
 						"base" => $base,
 						"igv" => $mIgv,
 						"servicio" => $mServicio,
-						"total" => $total
+						"total" => $total,
+						"dscto_m" => $dscto_m
 					);
 				}
 				$productos = $db->venta_detalle->select("producto_name, precio, SUM(cantidad) AS cantidad")->where("venta.caja_id=? AND venta.dia=? AND venta.anulado_id=0", array($cajaId, $dia))->group("producto_name, precio");
@@ -280,7 +284,7 @@ $app->group('/imprimir', function () use ($app, $db, $result) {
 					$productos->where("venta.cajero_id", $cajeroId);
 				}
 
-				$pagos = $db->venta_pagos->select("tipopago, SUM(venta.total) AS valorpago")->where("venta.caja_id=? AND venta.dia=? AND venta.anulado_id=0", array($cajaId, $dia))->group("tipopago");
+				$pagos = $db->venta_pagos->select("tarjeta_credito.nombre AS tarjeta_credito_nombre, moneda.nombre AS moneda_nombre, SUM(valorpago) AS valorpago")->where("venta.caja_id=? AND venta.dia=? AND venta.anulado_id=0", array($cajaId, $dia))->group("tarjeta_credito.nombre, moneda.nombre")->order("tarjeta_credito.orden, moneda.orden");
 				if($cajeroId>0){
 					$pagos->where("venta.cajero_id", $cajeroId);
 				}

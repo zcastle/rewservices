@@ -166,9 +166,9 @@ class Imprimir {
             }
 		}
 		$printer->_println("TOTAL                 S/.     ".Util::right(number_format($total, 2), 10));
-        if ($config["dscto"]>0){
-            $printer->_println("DSCTO                 S/.     ".Util::right(number_format($config["dscto"], 2), 10));            
-            $printer->_println("TOTAL con DSCTO       S/.     ".Util::right(number_format($total-$config["dscto"], 2), 10));            
+        if ($config["dscto_m"]>0){
+            $printer->_println("DSCTO                 S/.     ".Util::right(number_format($config["dscto_m"], 2), 10));            
+            $printer->_println("TOTAL con DSCTO       S/.     ".Util::right(number_format($total-$config["dscto_m"], 2), 10));            
         }
 
 		$printer->feed();
@@ -283,6 +283,7 @@ class Imprimir {
         $igv = $comprobante[Imprimir::FACTURA]["igv"]+$comprobante[Imprimir::BOLETA]["igv"];
         $servicio = $comprobante[Imprimir::FACTURA]["servicio"]+$comprobante[Imprimir::BOLETA]["servicio"];
         $total = $comprobante[Imprimir::FACTURA]["total"]+$comprobante[Imprimir::BOLETA]["total"];
+        $dscto_m = $comprobante[Imprimir::FACTURA]["dscto_m"]+$comprobante[Imprimir::BOLETA]["dscto_m"];
 
         $printer->_println("VALOR VENTA       : ".Util::right(number_format($sTotal, 2), 20));
         $printer->_println("IGV(".$config["igv"]."%)          : ".Util::right(number_format($igv, 2), 20));
@@ -291,6 +292,10 @@ class Imprimir {
         }
         $printer->_hr();
         $printer->_println("VENTAS REAL       : ".Util::right(number_format($total, 2), 20));
+        if($dscto_m>0){
+            $printer->_println("DESCUENTO         : ".Util::right(number_format($dscto_m, 2), 20));
+            $printer->_println("VENTAS REAL/DSCTO : ".Util::right(number_format($total-$dscto_m, 2), 20));
+        }
         
         $printer->_hr();
         $printer->_center(true);
@@ -308,6 +313,11 @@ class Imprimir {
             $printer->_println("SERVICIO(".$config["servicio"]."%)     : ".Util::right(number_format($comprobante[Imprimir::BOLETA]["servicio"], 2), 20));
         }
         $printer->_println("VENTAS REAL       : ".Util::right(number_format($comprobante[Imprimir::BOLETA]["total"], 2), 20));
+        $dscto_m = $comprobante[Imprimir::BOLETA]["dscto_m"];
+        if($dscto_m>0){
+            $printer->_println("DESCUENTO         : ".Util::right(number_format($dscto_m, 2), 20));
+            $printer->_println("VENTAS REAL/DSCTO : ".Util::right(number_format($comprobante[Imprimir::BOLETA]["total"]-$dscto_m, 2), 20));
+        }
         $printer->_println("TICKET INICIAL    : ".$comprobante[Imprimir::BOLETA]["first"]);
         $printer->_println("TICKET FINAL      : ".$comprobante[Imprimir::BOLETA]["last"]);
         $printer->_println("No. ANULACIONES   : ".$comprobante[Imprimir::BOLETA]["anulados"]);
@@ -328,6 +338,11 @@ class Imprimir {
             $printer->_println("SERVICIO(".$config["servicio"]."%)     : ".Util::right(number_format($comprobante[Imprimir::FACTURA]["servicio"], 2), 20));
         }
         $printer->_println("VENTAS REAL       : ".Util::right(number_format($comprobante[Imprimir::FACTURA]["total"], 2), 20));
+        $dscto_m = $comprobante[Imprimir::FACTURA]["dscto_m"];
+        if($dscto_m>0){
+            $printer->_println("DESCUENTO         : ".Util::right(number_format($dscto_m, 2), 20));
+            $printer->_println("VENTAS REAL/DSCTO : ".Util::right(number_format($comprobante[Imprimir::FACTURA]["total"]-$dscto_m, 2), 20));
+        }
         $printer->_println("TICKET INICIAL    : ".$comprobante[Imprimir::FACTURA]["first"]);
         $printer->_println("TICKET FINAL      : ".$comprobante[Imprimir::FACTURA]["last"]);
         $printer->_println("No. ANULACIONES   : ".$comprobante[Imprimir::FACTURA]["anulados"]);
@@ -341,12 +356,13 @@ class Imprimir {
 
         $total = 0;
         foreach ($pagos as $pago) {
-            $printer->_print(Util::left($pago['tipopago'], 17)." : ");
+            $printer->_print(Util::left($pago['tarjeta_credito_nombre'], 17));
+            $printer->_print(Util::left($pago['moneda_nombre'], 13));
             $printer->_println(Util::right(number_format($pago["valorpago"], 2), 10));
             $total += $pago["valorpago"];
         }
         $printer->_hr();
-        $printer->_println("VENTAS TOTAL      : ".Util::right(number_format($total, 2), 10));
+        $printer->_println("VENTAS TOTAL                : ".Util::right(number_format($total, 2), 10));
 
         if ($config["cajero"]) {
             $printer->feed();

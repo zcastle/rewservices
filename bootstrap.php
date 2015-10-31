@@ -97,7 +97,9 @@ $app->options('/imprimir/pedido/:cajaId/:nroAtencion', function() {});
 $app->options('/imprimir/cierre/:cajaId(/:cajeroId)', function() {});
 $app->options('/imprimir/cierre_pre/:cajaId', function() {});
 $app->options('/imprimir/anular/:id', function() {});
+$app->options('/moneda', function() {});
 $app->options('/tarjeta_credito', function() {});
+$app->options('/descuento_tipo', function() {});
 
 //$dsn = 'mysql:host=10.10.10.20;dbname=dbrewsoft15;';
 //$dsn = 'mysql:host=mysql.hostinger.es;dbname=u986138578_rew;';

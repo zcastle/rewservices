@@ -12,6 +12,7 @@ $app->group('/pedido', function () use ($app, $db, $result) {
     	$rows = $db->atenciones->where('nroatencion', $nroatencion)->and('caja_id', $cajaId);
     	foreach ($rows as $row) {
             $row['cliente_name'] = $db->cliente->where('id', $row['cliente_id'])->fetch()['nombre'];
+            $row['descuento_tipo_name'] = $row->descuento_tipo['nombre'];
     		array_push($result['data'], $row);
     	}
         $app->response()->write(json_encode($result));
@@ -110,6 +111,7 @@ $app->group('/pedido', function () use ($app, $db, $result) {
         $app->get('/:nroatencion/:caja_id', function($nroatencion, $cajaId) use ($app, $db, $result) {
             $rows = $db->atenciones_pagos->where('nroatencion', $nroatencion)->and('caja_id', $cajaId);
             foreach ($rows as $row) {
+                $row['tarjeta_credito_name'] = $row->tarjeta_credito['nombre'];
                 array_push($result['data'], $row);
             }
             $app->response()->write(json_encode($result));
@@ -200,11 +202,13 @@ $app->group('/pedido', function () use ($app, $db, $result) {
                 'igv' => 0,
                 'servicio' => 0,
                 'total' => 0,
-                'dscto' => 0,
                 'pax' => $atencion['pax'],
                 'mozo_id' => $atencion['mozo_id'],
                 'cajero_id' => $cajeroId,
-                'nroatencion' => $atencion['nroatencion']
+                'nroatencion' => $atencion['nroatencion'],
+                'descuento_tipo_id' => $atencion['descuento_tipo_id'],
+                'dscto_m' => $atencion['dscto_m'],
+                'dscto_p' => $atencion['dscto_p']
             ));
              //$atencion['cajero_id'],
             $total = 0.0;
@@ -238,7 +242,9 @@ $app->group('/pedido', function () use ($app, $db, $result) {
                 foreach ($rowsPagos as $row) {
                     $db->venta_pagos->insert(array(
                         'venta_id' => $tbVenta['id'],
-                        'tipopago' => $row['tipopago'],
+                        //'tipopago' => 'SOLES',
+                        'moneda_id' => $row['moneda_id'],
+                        'tarjeta_credito_id' => $row['tarjeta_credito_id'],
                         'valorpago' => $row['valorpago'],
                         'tipocambio' => $row['tipocambio'] == null ? 0 : $row['tipocambio']
                     ));
@@ -246,7 +252,9 @@ $app->group('/pedido', function () use ($app, $db, $result) {
             } else {
                 $db->venta_pagos->insert(array(
                     'venta_id' => $tbVenta['id'],
-                    'tipopago' => 'SOLES',
+                    //'tipopago' => 'SOLES',
+                    'moneda_id' => 1,
+                    'tarjeta_credito_id' => 1,
                     'valorpago' => $total
                 ));
             }
