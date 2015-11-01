@@ -160,19 +160,21 @@ $app->group('/pedido', function () use ($app, $db, $result) {
                 'cajero_id' => $cajeroId
             ));*/
             $cajaId = $atencion['caja_id'];
+            $tipoDocumentoId = 4;
             if($ticket){
                 $tipoDocumentoId = 13;
             }elseif($atencion['cliente_id']>0) {
                 $cliente = $db->cliente->where('id', $atencion['cliente_id'])->fetch();
                 $lenRuc =strlen($cliente['ruc']);
+                
                 if($lenRuc==11) {
                     $tipoDocumentoId = 2;
-                } else if($lenRuc==8) {
+                }/* else if($lenRuc==8) {
                     $tipoDocumentoId = 4;
-                }
-            } else {
+                }*/
+            } /*else {
                 $tipoDocumentoId = 4;
-            }
+            }*/
             $cajaUpdate = array();
             $serie = ''; $numero = '';
             $caja = $db->caja->where('id', $cajaId)->lock();
@@ -190,37 +192,71 @@ $app->group('/pedido', function () use ($app, $db, $result) {
                 $numero = $rowCaja['numero_b'];
                 $cajaUpdate['numero_b'] = $numero+1;
             }
-            $tbVenta = $db->venta->insert(array(
-                'caja_id' => $cajaId,
-                'fechahora' => new NotORM_Literal("NOW()"),
-                'dia' => $rowCaja['dia'],
-                'tipo_documento_id' => $tipoDocumentoId,
-                'serie' => $serie,
-                'numero' => $numero,
-                'cliente_id' => $atencion['cliente_id'],
-                'base' => 0,
-                'igv' => 0,
-                'servicio' => 0,
-                'total' => 0,
-                'pax' => $atencion['pax'],
-                'mozo_id' => $atencion['mozo_id'],
-                'cajero_id' => $cajeroId,
-                'nroatencion' => $atencion['nroatencion'],
-                'descuento_tipo_id' => $atencion['descuento_tipo_id'],
-                'dscto_m' => $atencion['dscto_m'],
-                'dscto_p' => $atencion['dscto_p']
-            ));
+            if($tipoDocumentoId==13){
+                $tbVenta = $db->tv->insert(array(
+                    'caja_id' => $cajaId,
+                    'fechahora' => new NotORM_Literal("NOW()"),
+                    'dia' => $rowCaja['dia'],
+                    'tipo_documento_id' => $tipoDocumentoId,
+                    'serie' => $serie,
+                    'numero' => $numero,
+                    'cliente_id' => $atencion['cliente_id'],
+                    'base' => 0,
+                    'igv' => 0,
+                    'servicio' => 0,
+                    'total' => 0,
+                    'pax' => $atencion['pax'],
+                    'mozo_id' => $atencion['mozo_id'],
+                    'cajero_id' => $cajeroId,
+                    'nroatencion' => $atencion['nroatencion'],
+                    'descuento_tipo_id' => $atencion['descuento_tipo_id'],
+                    'dscto_m' => $atencion['dscto_m'],
+                    'dscto_p' => $atencion['dscto_p']
+                ));
+            }else{
+                $tbVenta = $db->venta->insert(array(
+                    'caja_id' => $cajaId,
+                    'fechahora' => new NotORM_Literal("NOW()"),
+                    'dia' => $rowCaja['dia'],
+                    'tipo_documento_id' => $tipoDocumentoId,
+                    'serie' => $serie,
+                    'numero' => $numero,
+                    'cliente_id' => $atencion['cliente_id'],
+                    'base' => 0,
+                    'igv' => 0,
+                    'servicio' => 0,
+                    'total' => 0,
+                    'pax' => $atencion['pax'],
+                    'mozo_id' => $atencion['mozo_id'],
+                    'cajero_id' => $cajeroId,
+                    'nroatencion' => $atencion['nroatencion'],
+                    'descuento_tipo_id' => $atencion['descuento_tipo_id'],
+                    'dscto_m' => $atencion['dscto_m'],
+                    'dscto_p' => $atencion['dscto_p']
+                ));
+            }
              //$atencion['cajero_id'],
             $total = 0.0;
             foreach ($rowsAtencion as $row) {
-                $db->venta_detalle->insert(array(
-                    'venta_id' => $tbVenta['id'],
-                    'producto_id' => $row['producto_id'],
-                    'producto_name' => $row['producto_name'],
-                    'cantidad' => $row['cantidad'],
-                    'precio' => $row['precio'],
-                    'mensaje' => $row['mensaje']
-                ));
+                if($tipoDocumentoId==13){
+                    $db->tv_d->insert(array(
+                        'venta_id' => $tbVenta['id'],
+                        'producto_id' => $row['producto_id'],
+                        'producto_name' => $row['producto_name'],
+                        'cantidad' => $row['cantidad'],
+                        'precio' => $row['precio'],
+                        'mensaje' => $row['mensaje']
+                    ));
+                }else{
+                    $db->venta_detalle->insert(array(
+                        'venta_id' => $tbVenta['id'],
+                        'producto_id' => $row['producto_id'],
+                        'producto_name' => $row['producto_name'],
+                        'cantidad' => $row['cantidad'],
+                        'precio' => $row['precio'],
+                        'mensaje' => $row['mensaje']
+                    ));
+                }
                 $total += $row['cantidad'] * $row['precio'];
             }
 
@@ -250,13 +286,23 @@ $app->group('/pedido', function () use ($app, $db, $result) {
                     ));
                 }
             } else {
-                $db->venta_pagos->insert(array(
-                    'venta_id' => $tbVenta['id'],
-                    //'tipopago' => 'SOLES',
-                    'moneda_id' => 1,
-                    'tarjeta_credito_id' => 1,
-                    'valorpago' => $total
-                ));
+                if($tipoDocumentoId==13){
+                    $db->tv_p->insert(array(
+                        'venta_id' => $tbVenta['id'],
+                        //'tipopago' => 'SOLES',
+                        'moneda_id' => 1,
+                        'tarjeta_credito_id' => 1,
+                        'valorpago' => $total
+                    ));
+                }else{
+                    $db->venta_pagos->insert(array(
+                        'venta_id' => $tbVenta['id'],
+                        //'tipopago' => 'SOLES',
+                        'moneda_id' => 1,
+                        'tarjeta_credito_id' => 1,
+                        'valorpago' => $total
+                    ));
+                }
             }
             $rowsPagos->delete();
             $rowsAtencion->delete();

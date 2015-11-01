@@ -174,7 +174,7 @@ class Imprimir {
 		$printer->feed();
 		if ($cliente['cliente_id'] > 0 && !$config['ticket']) {
             $printer->_println("CLIENTE: ".$cliente['nombre']);
-            $printer->_println("RUC: ".$cliente['ruc']);
+            $printer->_println("RUC/DNI: ".$cliente['ruc']);
             $printer->_println("DIRECCION: ".$cliente['direccion']);
         }
         $printer->feed();
