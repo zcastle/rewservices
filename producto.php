@@ -285,6 +285,29 @@ $app->group('/producto', function () use ($app, $db, $result) {
         }
         $app->response()->write(json_encode($result));
     });
+
+    $app->get('/hijos/:nroatencion/:producto_id', function($nroatencion, $producto_id) use ($app, $db, $result) {
+        $tb = $db->producto->select("hijos")->where('id', $producto_id);
+        if ($row=$tb->fetch()) {
+            $arrHijos = json_decode($row['hijos'], true);
+            $tbHijos = $db->producto->select("id, nombre")->where('id', $arrHijos);
+            $tbAtenciones = $db->atenciones->select("hijos")->where("nroatencion", $nroatencion)->and("producto_id", $producto_id);
+            if ($atencion=$tbAtenciones->fetch()) {
+                $atencionesHijos = json_decode($atencion['hijos'], true);
+                foreach ($tbHijos as $hijo) {
+                    for ($i=0; $i < COUNT($atencionesHijos); $i++) {
+                        if($hijo["id"]==$atencionesHijos[$i]){
+                            $hijo["check"] = true;
+                        }else{
+                            $hijo["check"] = false;
+                        }
+                    }
+                    array_push($result['data'], $hijo);
+                }
+            }
+        }
+        $app->response()->write(json_encode($result));
+    });
 });
 
 ?>

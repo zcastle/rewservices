@@ -51,13 +51,18 @@ $app->group('/usuario', function () use ($app, $db, $result) {
     });
 
     //Nombre y Clave
-    $app->get('/:user/:pass', function($user, $pass) use ($app, $db, $result) {
-    	$usuario = $db->usuario()->where("usuario=? AND clave=?", $user, md5($pass));
-    	if ($usuario = $usuario->fetch()) {
-    		array_push($result['data'], array(
-                "id" => $usuario["id"],
-                "nombres" => $usuario["nombres"]
-            ));
+    $app->get('/:user/:pass/:rol', function($user, $pass, $rol) use ($app, $db, $result) {
+    	$objUsuario = $db->usuario->where("usuario", $user)->and("clave", $pass);
+    	if ($usuario = $objUsuario->fetch()) {
+            if($usuario["rol_id"]==$rol){
+                array_push($result['data'], array(
+                    "id" => $usuario["id"],
+                    "nombres" => $usuario["nombre"]." ".$usuario["apellido"]
+                ));
+            }else{
+                $result['success'] = false;
+            }
+            //$result['success'] = true;
     	} else {
     		$result['success'] = false;
     	}
