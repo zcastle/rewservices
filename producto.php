@@ -293,11 +293,12 @@ $app->group('/producto', function () use ($app, $db, $result) {
             $tbHijos = $db->producto->select("id, nombre")->where('id', $arrHijos);
             $tbAtenciones = $db->atenciones->select("hijos")->where("nroatencion", $nroatencion)->and("producto_id", $producto_id);
             if ($atencion=$tbAtenciones->fetch()) {
-                $atencionesHijos = json_decode($atencion['hijos'], true);
+                $atencionesHijos = json_decode($atencion['hijos']);
                 foreach ($tbHijos as $hijo) {
                     for ($i=0; $i < COUNT($atencionesHijos); $i++) {
                         if($hijo["id"]==$atencionesHijos[$i]){
                             $hijo["check"] = true;
+                            break;
                         }else{
                             $hijo["check"] = false;
                         }

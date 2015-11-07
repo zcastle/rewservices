@@ -38,8 +38,10 @@ $app->group('/pedido', function () use ($app, $db, $result) {
     $app->put('/:id', function($id) use ($app, $db, $result) {
         $atenciones = $db->atenciones->where("id", $id);
         if($row=$atenciones->fetch()) {
-            $values = json_decode($app->request()->put('data'));
-            $edit = $row->update((array)$values);
+            $values = (array)json_decode($app->request()->put('data'));
+            $values['hijos'] = json_encode($values['hijos']);
+            $row->update($values);
+            $result['data'] = $values;
         } else {
             $result['success'] = false;
         }
@@ -245,7 +247,8 @@ $app->group('/pedido', function () use ($app, $db, $result) {
                         'producto_name' => $row['producto_name'],
                         'cantidad' => $row['cantidad'],
                         'precio' => $row['precio'],
-                        'mensaje' => $row['mensaje']
+                        'mensaje' => $row['mensaje'],
+                        'hijos' => $row['hijos']
                     ));
                 }else{
                     $db->venta_detalle->insert(array(
@@ -254,7 +257,8 @@ $app->group('/pedido', function () use ($app, $db, $result) {
                         'producto_name' => $row['producto_name'],
                         'cantidad' => $row['cantidad'],
                         'precio' => $row['precio'],
-                        'mensaje' => $row['mensaje']
+                        'mensaje' => $row['mensaje'],
+                        'hijos' => $row['hijos']
                     ));
                 }
                 $total += $row['cantidad'] * $row['precio'];
