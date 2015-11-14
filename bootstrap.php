@@ -96,6 +96,7 @@ $app->options('/imprimir/precuenta/:cajaId/:nroAtencion', function() {});
 $app->options('/imprimir/comprobante/:id/:ticket', function() {});
 $app->options('/imprimir/pedido/liberar/:id', function() {});
 $app->options('/imprimir/pedido/:cajaId/:nroAtencion', function() {});
+$app->options('/imprimir/pedido/:tipo/:atencionId/:cantidad', function() {});
 $app->options('/imprimir/cierre/:cajaId(/:cajeroId)', function() {});
 $app->options('/imprimir/cierre_pre/:cajaId', function() {});
 $app->options('/imprimir/anular/:id', function() {});

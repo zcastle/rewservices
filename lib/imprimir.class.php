@@ -210,7 +210,7 @@ class Imprimir {
         return $this->response;
     }
 
-    public function pedido($atencion, $destino, array $config = null, $tipo=Imprimir::ENVIO_ADD){
+    public function pedido($atencion, $destino, array $config = null, $db, $tipo=Imprimir::ENVIO_ADD){
         $config = $config ? $config : $this->config;
         $printer = $this->printer;
 
@@ -234,6 +234,14 @@ class Imprimir {
         foreach ($atencion as $row) {
             $printer->_print(Util::left($row["cantidad"], 4));
             $printer->_println(Util::left($row["producto_name"], 36));
+            if($row["hijos"] && $tipo==Imprimir::ENVIO_ADD) {
+                $hijos = json_decode($row["hijos"]);
+                $proHijo = $db->producto->select("nombre")->where("id", $hijos);
+                foreach ($proHijo as $hijo) {
+                    //$proHijo = $db->producto->select("nombre")->where("id", $hijo)->fetch();
+                    $printer->_println("   *".$hijo['nombre']);
+                }
+            }
             if($row["mensaje"] && $tipo==Imprimir::ENVIO_ADD) {
                 $printer->_println("   >".$row["mensaje"]);
             }

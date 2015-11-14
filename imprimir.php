@@ -155,7 +155,7 @@ $app->group('/imprimir', function () use ($app, $db, $result) {
 					if($imprimir = new Imprimir($row["destino"])){
 						$response = $imprimir->pedido($atencion, $row["nombre"], array(
 							"mozo" => $mozo
-						));
+						), $db);
 						if($response["data"]['success']){
 							foreach ($atencion as $row) {
 								$row->update(array("enviado" => "S"));
@@ -186,7 +186,7 @@ $app->group('/imprimir', function () use ($app, $db, $result) {
 		$imprimir = new Imprimir($destino);
 		$response = $imprimir->pedido($atencion, $destinoNombre, array(
 			"mozo" => $mozo
-		), $tipo);
+		), $db, $tipo);
 
 		$app->response()->write(json_encode($response));
 	});
