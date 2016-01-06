@@ -105,13 +105,14 @@ $app->options('/tarjeta_credito', function() {});
 $app->options('/descuento_tipo', function() {});
 
 //$dsn = 'mysql:host=10.10.10.20;dbname=dbrewsoft15;';
-//$dsn = 'mysql:host=mysql.hostinger.es;dbname=u986138578_rew;';
 //$dsn = 'mysql:host=mibarrunto.no-ip.org;dbname=dbrewsoft2014;';
+//hostinger
+//$dsn = 'mysql:host=mysql.hostinger.com.ar;dbname=u377927705_rew;';
+//$username = 'u377927705_rew'; //last
+//$password = '275718';
+//
 $dsn = 'mysql:host=localhost;dbname=dbrewsoft2014;';
-//$username = 'u986138578_rew';
 $username = 'sistemas';
-//$username = 'smart';
-//$password = 'gob2385++';
 $password = '123456';
 
 try{ 

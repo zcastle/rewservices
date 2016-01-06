@@ -4,7 +4,7 @@ require_once('vendor/mike42/escpos-php/Escpos.php');
 
 class REWEscpos extends Escpos {
 
-	const DEBUG = true;
+	const DEBUG = false;
 
 	function __construct($pathPrint) {
 		if(REWEscpos::DEBUG){
