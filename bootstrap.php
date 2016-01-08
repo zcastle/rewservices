@@ -14,7 +14,7 @@ $app->config(array(
 /*$app->response()->header("Access-Control-Allow-Origin", "*");
 $app->response()->header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
 $app->response()->header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, user");*/
-$app->response()->header("Content-Type", "application/json;charset=utf-8");
+$app->response()->header("Content-Type", "application/json; charset=utf-8");
 
 $app->options('/', function() {});
 $app->options('/almacen', function(){});
@@ -74,7 +74,7 @@ $app->options('/producto/receta/:id', function() {});
 $app->options('/producto/hijos/:nroatencion/:producto_id', function() {});
 $app->options('/tipo_documento', function(){});
 $app->options('/tipo_operacion', function(){});
-$app->options('/ubigeo', function(){});
+$app->options('/ubigeo(/:departamento_id)(/:provincia_id)(/:distrito_id)', function(){});
 $app->options('/ubigeo/lima', function(){});
 $app->options('/unidad', function(){});
 $app->options('/unidad/:id', function(){});

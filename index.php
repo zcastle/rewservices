@@ -5,7 +5,7 @@ require "bootstrap.php";
 $recurso = $_SERVER['REQUEST_URI'];
 if(strlen($recurso)>1) {
 	//print_r($recurso);
-	$mod = explode("/",$recurso)[2];
+	$mod = explode("/",$recurso)[1]; //1 to port, 2 to path
 	$contiene = strpos($mod, '?');
 	if($contiene===false){
 		$mod = $mod.'.php';

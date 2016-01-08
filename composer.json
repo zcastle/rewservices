@@ -5,7 +5,7 @@
         "slim/slim": "2.6.2",
         "vrana/notorm": "dev-master",
         "mike42/escpos-php": "dev-master",
-        "tecnick.com/tcpdf": "6.2.*",
+        "tecnickcom/tcpdf": "6.2.*",
         "phpoffice/phpexcel": "1.8.*"
     }
 }

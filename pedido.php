@@ -41,7 +41,7 @@ $app->group('/pedido', function () use ($app, $db, $result) {
             $values = (array)json_decode($app->request()->put('data'));
             $values['hijos'] = json_encode($values['hijos']);
             $row->update($values);
-            $result['data'] = $values;
+            //$result['success'] = $row->update($values);
         } else {
             $result['success'] = false;
         }
@@ -157,7 +157,7 @@ $app->group('/pedido', function () use ($app, $db, $result) {
         $cajeroId = $app->request->post('cajero_id');
         $ticket = $app->request->post('ticket')=="true"?true:false;
         $rowsAtencion = $db->atenciones->where('nroatencion', $nroatencion)->and('caja_id', $cajaId);
-        if($atencion= $rowsAtencion->fetch()) {
+        if($atencion=$rowsAtencion->fetch()) {
             /*$rowsAtencion->update(array(
                 'cajero_id' => $cajeroId
             ));*/
@@ -234,7 +234,9 @@ $app->group('/pedido', function () use ($app, $db, $result) {
                     'nroatencion' => $atencion['nroatencion'],
                     'descuento_tipo_id' => $atencion['descuento_tipo_id'],
                     'dscto_m' => $atencion['dscto_m'],
-                    'dscto_p' => $atencion['dscto_p']
+                    'dscto_p' => $atencion['dscto_p'],
+                    'dni' => $atencion['dni'],
+                    'nombre' => $atencion['nombre']
                 ));
             }
              //$atencion['cajero_id'],

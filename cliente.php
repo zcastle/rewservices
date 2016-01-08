@@ -14,6 +14,18 @@ $app->group('/cliente', function () use ($app, $db, $result) {
 		if ($row=$rows->fetch()) {
 			$ubigeo = $db->ubigeo->where('id', $row['ubigeo_id'])->fetch();
 			$row['ubigeo_name'] = $ubigeo['nombre'];
+			$provincia = $db->ubigeo
+							->where('co_departamento=? AND co_provincia=? AND co_distrito = ?', 
+								array($ubigeo['co_departamento'], $ubigeo['co_provincia'], '00'))
+							->fetch();
+			$row['provincia_id'] = $provincia['id'];
+			//$row['provincia_name'] = $provincia['nombre'];
+			$departamento = $db->ubigeo
+							->where('co_departamento=? AND co_provincia=? AND co_distrito = ?', 
+								array($provincia['co_departamento'], '00', '00'))
+							->fetch();
+			$row['departamento_id'] = $departamento['id'];
+			//$row['departamento_name'] = $departamento['nombre'];
 			array_push($result['data'], $row);
 		} else {
 			$result['success'] = false;
